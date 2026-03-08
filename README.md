@@ -4,8 +4,9 @@ The service include below all points:
 •	Detection of broken or damaged eggs
 •	Size-based classification (Small/Medium/Large/XL)
 •	Live dashboard, reporting, and analytics
+![Screenshot 2026-03-08 172054](https://github.com/user-attachments/assets/76b3937c-ee19-43c9-96ea-f426b528a069)
 
-PART A: SERVICE SOLUTION
+# PART A: SERVICE SOLUTION
 Core Functionalities-
 The software system will include: 
 • Real-time egg detection using deep learning models 
@@ -16,15 +17,13 @@ The software system will include:
 • Confidence-based filtering to ensure reliability 
 • Edge-to-server synchronization for data storage and reporting
 
-PART B: HARDWARE REQUIRED FOR PRODUCTION- 
-IP Cameras -
-Minimum Specifications: 
+# PART B: HARDWARE REQUIRED FOR PRODUCTION- 
+# IP Cameras Minimum Specifications: 
 • At least 2 Megapixel resolution
 • Fixed mounting above conveyor belt 
 • Stable lighting arrangement recommended 
-Purpose: 
-Continuous video capture of eggs moving on the conveyor for AI processing. 
-GPU-Based AI Server
+
+# GPU-Based AI Server
 Recommended Configuration: 
 • NVIDIA RTX Series GPU with 16GB VRAM 
 • Intel Core i9 Processor 
@@ -37,3 +36,4 @@ Purpose:
 • Real-time processing of approximately 30 FPS (1 cameras × 30 FPS) 
 • Stable 24/7 operation 
 • Future scalability for additional camera integration
+
