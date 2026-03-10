@@ -3,7 +3,7 @@
 conveyor_lines:
   - id: 1
     name: "Main Conveyor North"
-    source: "rtsp://admin:prg%40adm!n@192.168.193.138:554/cam/realmonitor?channel=1&subtype=1" 
+    source: "rtsp://password@camera_ip:port/cam/realmonitor?channel=1&subtype=1"  # to connect any serviliance camera follow this method
     ppm: 3.3  # Pixels Per Millimeter (Calibration)
     active: true
     camera:
@@ -12,27 +12,10 @@ conveyor_lines:
 
   - id: 2
     name: "Secondary Line South"
-    source: "tests/Eggs_Sorting.mp4"
+    source: "tests/Eggs_Sorting.mp4" # i used open source mp4 file for demostration
     ppm: 3.5
     active: true
     camera:
       counting_line_y: 400
       crack_zone: [50, 410, 1200, 650]
-
-  - id: 3
-    name: "Secondary Line South"
-    source: "tests/Eggs_Sorting.mp4"
-    ppm: 3.5
-    active: true
-    camera:
-      counting_line_y: 400
-      crack_zone: [50, 410, 1200, 650]
-
-  - id: 4
-    name: "Secondary Line South"
-    source: "tests/Eggs_Sorting.mp4"
-    ppm: 3.5
-    active: true
-    camera:
-      counting_line_y: 400
-      crack_zone: [50, 410, 1200, 650]            
+     
