@@ -16,6 +16,7 @@ conveyor_lines:
     ppm: 3.5
     active: true
     camera:
-      counting_line_y: 400
-      crack_zone: [50, 410, 1200, 650]
+      counting_line_y: 400 # counting line position
+      crack_zone: [50, 410, 1200, 650] # cracked detection box
      
+
