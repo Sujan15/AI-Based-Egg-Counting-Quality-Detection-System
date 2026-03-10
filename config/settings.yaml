@@ -1,0 +1,11 @@
+models:
+  detection: "models/detection/best_int8_openvino_model-1k/best.xml"
+  segmentation: "models/segmentation/best_int8_openvino_model/best.xml"
+
+# camera:
+#   counting_line_y: 450  # Pixels from top where counting triggers
+#   crack_zone: [50, 100, 600, 400] # [x1, y1, x2, y2] ROI for crack detection
+  
+performance:
+  cpu_threads: 30
+  target_fps: 30
