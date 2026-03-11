@@ -180,17 +180,6 @@ class EggVisionEngine:
             class_id=class_id
         )
 
-    def _batch_iou(self, box, boxes):
-        """Compute IoU of a single box with an array of boxes."""
-        x1 = np.maximum(box[0], boxes[:, 0])
-        y1 = np.maximum(box[1], boxes[:, 1])
-        x2 = np.minimum(box[2], boxes[:, 2])
-        y2 = np.minimum(box[3], boxes[:, 3])
-        inter = np.maximum(0, x2 - x1) * np.maximum(0, y2 - y1)
-        area_box = (box[2] - box[0]) * (box[3] - box[1])
-        area_boxes = (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1])
-        union = area_box + area_boxes - inter
-        return inter / union
 
     def _draw_production_ui(self, frame):
         h, w = frame.shape[:2]
@@ -211,4 +200,5 @@ class EggVisionEngine:
         cv2.putText(frame, f"Small: {self.stats['Small']}", (15, 60), 0, 0.6, (255, 255, 0), 1)
         cv2.putText(frame, f"Standard: {self.stats['Standard']}", (15, 85), 0, 0.6, (0, 255, 0), 1)
         cv2.putText(frame, f"Big: {self.stats['Big']}", (15, 110), 0, 0.6, (0, 165, 255), 1)
+
         cv2.putText(frame, f"Cracked: {self.stats['Cracked']}", (15, 135), 0, 0.6, (0, 0, 255), 1)
