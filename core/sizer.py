@@ -30,12 +30,13 @@ class EggSizer:
 
         # Classification
         if mm_size >= self.big_threshold:
-            return "Big", (0, 165, 255)       # Orange
+            return "Big", (0, 165. 255)      # Orange
 
         elif mm_size >= self.small_threshold:
             return "Standard", (0, 255, 0)    # Green
 
         else:
             return "Small", (255, 255, 0)     # Cyan
+
 
 
