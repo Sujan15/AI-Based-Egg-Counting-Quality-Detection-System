@@ -70,4 +70,96 @@ def _make_file_handler(category: str) -> logging.Handler:
     h.setLevel(logging.DEBUG)
     return h
 
+#  SECTION 3 – LISTENER  (runs in main process only)
+
+_listener: logging.handlers.QueueListener = None
+_log_queue = None
+
+
+def start_log_listener(log_queue=None):
+    """
+    Create all file handlers and start the QueueListener thread.
+
+    Must be called ONCE in the main process BEFORE any workers are spawned.
+    Returns the log_queue so you can pass it to worker processes.
+    """
+    global _listener, _log_queue
+
+    if log_queue is None:
+        import multiprocessing
+        log_queue = multiprocessing.Queue(-1)
+
+    _log_queue = log_queue
+
+    # One file handler per channel — owned exclusively by this thread
+    _file_handlers = {cat: _make_file_handler(cat) for cat in _CATEGORIES}
+
+    class _ChannelRouter(logging.Handler):
+        """
+        Routes each LogRecord to the correct channel file-handler
+        based on logger-name prefix.  Unknown names → system log.
+        """
+        def emit(self, record: logging.LogRecord) -> None:
+            for prefix, channel in _CHANNEL_PREFIX.items():
+                if record.name.startswith(prefix):
+                    try:
+                        _file_handlers[channel].emit(record)
+                    except Exception:
+                        _file_handlers["error"].emit(record)
+                    return
+            _file_handlers["system"].emit(record)   # fallback
+
+    router = _ChannelRouter()
+    router.setLevel(logging.DEBUG)
+
+    _listener = logging.handlers.QueueListener(
+        log_queue,
+        router,
+        respect_handler_level=True,
+    )
+    _listener.start()
+
+    # Wire the main process root logger to the queue
+    _wire_root_to_queue(log_queue)
+
+    _get_logger("system").info(
+        'Log listener started | {"pid":"main","channels":5}'
+    )
+    return log_queue
+
+
+def stop_log_listener() -> None:
+    """Flush the queue and stop the listener. Call on graceful shutdown."""
+    global _listener
+    if _listener is not None:
+        _listener.stop()
+        _listener = None
+
+
+#  SECTION 4 – WORKER BOOTSTRAP
+
+def configure_worker_logging(log_queue) -> None:
+    """
+    Replace all handlers on the worker's root logger with a QueueHandler.
+
+    Call this as the VERY FIRST statement in every inference_worker()
+    function, before any other imports or log calls.
+    The worker will never open a log file — it only writes to the queue.
+    """
+    _wire_root_to_queue(log_queue)
+
+
+def _wire_root_to_queue(log_queue) -> None:
+    root = logging.getLogger()
+    # Close and remove every existing handler to prevent file-handle leaks
+    for h in root.handlers[:]:
+        root.removeHandler(h)
+        try:
+            h.close()
+        except Exception:
+            pass
+    qh = logging.handlers.QueueHandler(log_queue)
+    qh.setLevel(logging.DEBUG)
+    root.addHandler(qh)
+    root.setLevel(logging.DEBUG)
 
