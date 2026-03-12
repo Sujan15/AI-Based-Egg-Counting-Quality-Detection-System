@@ -370,4 +370,10 @@ class _LoggerProxy:
 
     def __repr__(self) -> str:
         return repr(self._logger())
-
+        
+# Drop-in replacements for the old module-level singleton loggers
+sys_logger   = _LoggerProxy("system")
+ai_logger    = _LoggerProxy("ai")
+prod_logger  = _LoggerProxy("production")
+err_logger   = _LoggerProxy("error")
+audit_logger = _LoggerProxy("audit")
