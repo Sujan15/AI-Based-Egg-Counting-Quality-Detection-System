@@ -349,3 +349,25 @@ def _mask_rtsp(source: str) -> str:
         return urlunparse(masked)
     except Exception:
         return "rtsp://***"
+class _LoggerProxy:
+    """
+    Thin proxy that forwards every call to the live logger for a channel.
+    Using a proxy (rather than a direct reference) ensures the object
+    always reflects the current handler configuration — critical because
+    configure_worker_logging() replaces handlers on the root logger after
+    module import time.
+    """
+    __slots__ = ("_channel",)
+
+    def __init__(self, channel: str) -> None:
+        object.__setattr__(self, "_channel", channel)
+
+    def _logger(self) -> logging.Logger:
+        return _get_logger(object.__getattribute__(self, "_channel"))
+
+    def __getattr__(self, name: str):
+        return getattr(self._logger(), name)
+
+    def __repr__(self) -> str:
+        return repr(self._logger())
+
