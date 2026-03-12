@@ -163,3 +163,189 @@ def _wire_root_to_queue(log_queue) -> None:
     root.addHandler(qh)
     root.setLevel(logging.DEBUG)
 
+#  SECTION 5 – CHANNEL LOGGER ACCESSORS
+
+def _get_logger(channel: str) -> logging.Logger:
+    lg = logging.getLogger(f"EggTrackAI.{channel}")
+    lg.setLevel(logging.DEBUG)
+    lg.propagate = True   # propagates to root → QueueHandler → listener
+    return lg
+
+#  SECTION 6 – PUBLIC HELPER FUNCTIONS
+
+# ── System ────────────────────────────────────────────────────
+def log_app_start(version: str = "1.0.0") -> None:
+    _get_logger("system").info(
+        f'Application started | {{"version":"{version}"}}'
+    )
+
+
+def log_app_stop() -> None:
+    _get_logger("system").info(
+        'Application stopped | {"reason":"graceful_shutdown"}'
+    )
+
+
+def log_camera_connected(line_id, source: str) -> None:
+    _get_logger("system").info(
+        f'Camera connected | {{"line":{line_id},"source":"{_mask_rtsp(source)}"}}'
+    )
+
+
+def log_camera_disconnected(line_id, source: str) -> None:
+    _get_logger("system").warning(
+        f'Camera disconnected, retrying | '
+        f'{{"line":{line_id},"source":"{_mask_rtsp(source)}"}}'
+    )
+
+
+def log_camera_reconnected(line_id) -> None:
+    _get_logger("system").info(
+        f'Camera reconnected successfully | {{"line":{line_id}}}'
+    )
+
+
+def log_worker_started(line_id) -> None:
+    _get_logger("system").info(
+        f'Inference worker started | {{"line":{line_id}}}'
+    )
+
+
+def log_worker_crashed(line_id, exc: Exception) -> None:
+    _get_logger("system").critical(
+        f'Inference worker crashed | {{"line":{line_id},"error":"{exc}"}}'
+    )
+
+
+def log_ws_connected(client: str) -> None:
+    _get_logger("system").info(
+        f'WebSocket stats client connected | {{"client":"{client}"}}'
+    )
+
+
+def log_ws_disconnected(client: str) -> None:
+    _get_logger("system").info(
+        f'WebSocket stats client disconnected | {{"client":"{client}"}}'
+    )
+
+
+def log_webrtc_offer(line_id) -> None:
+    _get_logger("system").info(
+        f'WebRTC offer received | {{"line":{line_id}}}'
+    )
+
+
+def log_webrtc_closed(line_id) -> None:
+    _get_logger("system").info(
+        f'WebRTC peer connection closed | {{"line":{line_id}}}'
+    )
+# ── AI Performance (sampled 1×/sec — never per-frame) ─────────
+def log_ai_perf(line_id, fps: float, det_count: int,
+                avg_conf: float, infer_ms: float, track_ids) -> None:
+    meta = json.dumps({
+        "fps":           round(fps, 1),
+        "detections":    det_count,
+        "avg_conf":      round(float(avg_conf), 3),
+        "inference_ms":  round(infer_ms, 1),
+        "active_tracks": len(track_ids),
+    }, separators=(",", ":"))
+    _get_logger("ai").info(f"line={line_id} | {meta}")
+
+
+# ── Production Event (once per egg crossing counting line) ────
+def log_production_event(line_id, track_id, size: str,
+                          is_crack: bool, shift: int = 1) -> None:
+    _get_logger("production").info(
+        f"LINE={line_id} SHIFT={shift} TRACK={track_id} "
+        f"SIZE={size} CRACK={1 if is_crack else 0}"
+    )
+
+
+# ── Error ─────────────────────────────────────────────────────
+def log_error(module: str, message: str,
+              exc: Exception = None, meta: dict = None) -> None:
+    meta_str = (
+        f" | {json.dumps(meta, separators=(',', ':'))}" if meta else ""
+    )
+    _get_logger("error").error(f"{module} {message}{meta_str}")
+    if exc:
+        _get_logger("error").error(traceback.format_exc())
+
+
+def log_critical(module: str, message: str,
+                 exc: Exception = None) -> None:
+    _get_logger("error").critical(f"{module} {message}")
+    if exc:
+        _get_logger("error").critical(traceback.format_exc())
+
+
+# ── Audit ─────────────────────────────────────────────────────
+def log_audit(user: str, action: str,
+              ip: str = "-", **kwargs) -> None:
+    extra = "".join(f" {k.upper()}={v}" for k, v in kwargs.items())
+    _get_logger("audit").info(
+        f"USER={user} ACTION={action} IP={ip}{extra}"
+    )
+
+
+def log_audit_login(user: str, ip: str,
+                    success: bool = True) -> None:
+    status = "SUCCESS" if success else "FAILED"
+    _get_logger("audit").info(
+        f"USER={user} ACTION=LOGIN IP={ip} STATUS={status}"
+    )
+
+
+def log_audit_logout(user: str, ip: str) -> None:
+    _get_logger("audit").info(
+        f"USER={user} ACTION=LOGOUT IP={ip}"
+    )
+
+
+def log_audit_export(user: str, report_type: str = "DAILY",
+                     ip: str = "-") -> None:
+    _get_logger("audit").info(
+        f"USER={user} ACTION=EXPORT_REPORT TYPE={report_type} IP={ip}"
+    )
+
+
+def log_audit_model_update(user: str, version: str,
+                            ip: str = "-") -> None:
+    _get_logger("audit").info(
+        f"USER={user} ACTION=MODEL_UPDATED VERSION={version} IP={ip}"
+    )
+
+
+def log_audit_config_change(user: str, config_file: str,
+                             ip: str = "-") -> None:
+    _get_logger("audit").info(
+        f"USER={user} ACTION=CONFIG_CHANGED FILE={config_file} IP={ip}"
+    )
+
+
+def log_audit_line_toggle(user: str, line_id,
+                           state: str, ip: str = "-") -> None:
+    _get_logger("audit").info(
+        f"USER={user} ACTION=LINE_{state} LINE={line_id} IP={ip}"
+    )
+
+
+# ── Internal Utility ──────────────────────────────────────────
+def _mask_rtsp(source: str) -> str:
+    """Mask credentials in RTSP URLs before writing to logs."""
+    if not isinstance(source, str):
+        return str(source)
+    if not source.lower().startswith("rtsp://"):
+        return source
+    try:
+        from urllib.parse import urlparse, urlunparse
+        p = urlparse(source)
+        masked = p._replace(
+            netloc=(
+                f"***:***@{p.hostname}"
+                + (f":{p.port}" if p.port else "")
+            )
+        )
+        return urlunparse(masked)
+    except Exception:
+        return "rtsp://***"
