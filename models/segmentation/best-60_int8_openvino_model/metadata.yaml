@@ -1,0 +1,24 @@
+description: Ultralytics YOLO11n-seg model trained on D:/ETL DEMO WORK/New folder/yolox-microservice/datasets/egg_detection_dataset11/data.yaml
+author: Ultralytics
+date: '2026-02-19T12:22:21.400804'
+version: 8.4.9
+license: AGPL-3.0 License (https://ultralytics.com/license)
+docs: https://docs.ultralytics.com
+stride: 32
+task: segment
+batch: 1
+imgsz:
+- 640
+- 640
+names:
+  0: broken-egg
+  1: good-egg
+args:
+  batch: 1
+  fraction: 1.0
+  half: false
+  int8: true
+  dynamic: false
+  nms: false
+channels: 3
+end2end: false
