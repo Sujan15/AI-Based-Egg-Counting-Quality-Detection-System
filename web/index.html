@@ -8,7 +8,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* (same CSS as before â€“ keep all styles) */
         :root {
             --primary: #4a6fa5;
             --primary-dark: #385d8a;
@@ -307,7 +309,7 @@
         /* Main Dashboard Area */
         .main-dashboard {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 25px;
             margin-bottom: 30px;
         }
@@ -333,144 +335,35 @@
             color: var(--dark);
         }
 
-        .camera-feed {
-            position: relative;
-            overflow: hidden;
-            background: #000;
-        }
-
-        .live-stream-img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
-
-        .camera-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2; /* Markers sit above the image */
-            pointer-events: none;
-        }
-
         .card-body {
             padding: 20px;
         }
 
-        /* Analytics */
-        .analytics-list {
-            list-style: none;
-        }
-
-        .analytics-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--light-gray);
-        }
-
-        .analytics-item:last-child {
-            border-bottom: none;
-        }
-
-        .analytics-label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .analytics-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .analytics-value {
-            font-weight: 600;
-            font-size: 18px;
-        }
-
-        .size-distribution {
-            margin-top: 25px;
-        }
-
-        .size-bar {
-            height: 30px;
-            border-radius: 15px;
-            background-color: var(--light-gray);
-            margin: 15px 0;
-            overflow: hidden;
-            display: flex;
-        }
-
-        .size-segment {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 12px;
-        }
-
-        .segment-small {
-            background-color: #4caf50;
-            width: 15%;
-        }
-
-        .segment-medium {
-            background-color: #2196f3;
-            width: 30%;
-        }
-
-        .segment-large {
-            background-color: #ff9800;
-            width: 40%;
-        }
-
-        .segment-xl {
-            background-color: #9c27b0;
-            width: 15%;
-        }
-
-        .size-labels {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            font-size: 14px;
-            color: var(--gray);
-        }
-
-        /* Performance Metrics */
-        .performance-metrics {
+        /* Charts */
+        .charts-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+            gap: 25px;
+            margin-bottom: 30px;
         }
 
-        .metric-card {
-            background-color: #f8f9fa;
+        .chart-container {
+            background-color: white;
             border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
             padding: 20px;
-            text-align: center;
         }
 
-        .metric-value {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 5px;
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
 
-        .metric-label {
-            font-size: 14px;
-            color: var(--gray);
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
         }
 
         /* Live Feed Page Styles */
@@ -570,49 +463,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
         }
 
-        .camera-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .camera-feed video {
             width: 100%;
             height: 100%;
-            pointer-events: none;
-        }
-
-        .camera-feed.full-view {
-            height: 500px;
-        }
-
-        .egg-marker {
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: 2px solid;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: white;
-            font-size: 10px;
-            transform: translate(-50%, -50%);
-        }
-
-        .egg-normal {
-            border-color: #4caf50;
-            background-color: rgba(76, 175, 80, 0.3);
-        }
-
-        .egg-broken {
-            border-color: #f44336;
-            background-color: rgba(244, 67, 54, 0.3);
-        }
-
-        .egg-duplicate {
-            border-color: #ff9800;
-            background-color: rgba(255, 152, 0, 0.3);
+            object-fit: contain;
+            background: black;
         }
 
         .camera-stats {
@@ -639,158 +497,7 @@
             font-size: 12px;
         }
 
-        /* Charts and Reporting */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .chart-container {
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 20px;
-        }
-
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .chart-title {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .chart-placeholder {
-            height: 250px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f8f9fa;
-            border-radius: var(--border-radius);
-            color: var(--gray);
-            font-weight: 500;
-        }
-
-        /* Footer */
-        footer {
-            background-color: var(--dark);
-            color: white;
-            padding: 30px 0;
-        }
-
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .footer-logo {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .system-version {
-            font-size: 14px;
-            color: #b0b7c3;
-        }
-
-        .camera-feed {
-            position: relative;
-            overflow: hidden;
-            background: #000;
-        }
-
-        .live-stream-img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
-
-        .camera-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2; /* Markers sit above the image */
-            pointer-events: none;
-        }
-
-        .copyright {
-            text-align: center;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #495057;
-            color: #b0b7c3;
-            font-size: 14px;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1200px) {
-            .dashboard-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .main-dashboard {
-                grid-template-columns: 1fr;
-            }
-            
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .camera-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .footer-content {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .header-content {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .nav-links {
-                gap: 15px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            
-            .controls {
-                flex-wrap: wrap;
-            }
-            
-            .performance-metrics {
-                grid-template-columns: 1fr;
-            }
-            
-            .live-feed-header {
-                flex-direction: column;
-                gap: 15px;
-                align-items: flex-start;
-            }
-        }
-
-        /* ── Click-to-expand single view overlay ───────────────── */
-        .camera-feed { cursor: pointer; }
-
+        /* Single-View Overlay */
         #single-view-overlay {
             display: none;
             position: fixed;
@@ -848,7 +555,6 @@
             background: #000;
         }
 
-        /* Prev / Next navigation arrows */
         .sv-nav-btn {
             position: absolute;
             top: 50%;
@@ -883,7 +589,6 @@
         .sv-stat-val { font-weight: 700; font-size: 20px; }
         .sv-stat-lbl { color: #b0b7c3; font-size: 12px; }
 
-        /* Dot indicator strip */
         #sv-dots {
             display: flex; gap: 8px; margin-top: 14px;
         }
@@ -893,6 +598,82 @@
             transition: background 0.2s;
         }
         .sv-dot.active { background: var(--primary); }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 30px 0;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-logo {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .system-version {
+            font-size: 14px;
+            color: #b0b7c3;
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #495057;
+            color: #b0b7c3;
+            font-size: 14px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .main-dashboard {
+                grid-template-columns: 1fr;
+            }
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .camera-grid {
+                grid-template-columns: 1fr;
+            }
+            .footer-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .nav-links {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .controls {
+                flex-wrap: wrap;
+            }
+            .live-feed-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
     </style>
 </head>
 <body>
@@ -915,7 +696,7 @@
                 <div class="user-info">
                     <div class="notification-icon">
                         <i class="fas fa-bell"></i>
-                        <div class="notification-badge">3</div>
+                        <div class="notification-badge">0</div>
                     </div>
                     <div class="user-avatar">OP</div>
                 </div>
@@ -983,7 +764,7 @@
                         <span>Broken/Damaged</span>
                         <span>Today</span>
                     </div>
-                    <div class="stat-card-value" id="brokenEggs">397</div>
+                    <div class="stat-card-value" id="brokenEggs">0</div>
                     <div class="stat-card-change negative">
                         <i class="fas fa-arrow-down"></i>
                         <span>0% defect rate</span>
@@ -999,9 +780,9 @@
                         <span>Per hour</span>
                     </div>
                     <div class="stat-card-value" id="processingSpeed">0</div>
-                    <div class="stat-card-change positive">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>0% faster</span>
+                    <div class="stat-card-change positive" id="speedChange">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>0 eggs/hour</span>
                     </div>
                     <div class="stat-card-icon icon-size">
                         <i class="fas fa-tachometer-alt"></i>
@@ -1011,86 +792,26 @@
 
             <!-- Main Dashboard Area -->
             <div class="main-dashboard">
-                <!-- Analytics Card -->
+                <!-- Analytics Card (Size Distribution Bar Chart) -->
                 <div class="analytics-card">
                     <div class="card-header">
-                        <h2 class="card-title">Real-time Analytics</h2>
+                        <h2 class="card-title">Real-time Size Distribution</h2>
                         <div class="card-status">
                             <span class="status-indicator active"></span>
-                            <span>Updated now</span>
+                            <i class="fas fa-sync-alt"></i>
+                            <span>Live</span>
                         </div>
                     </div>
                     <div class="card-body">
-                        <ul class="analytics-list">
-                            <li class="analytics-item">
-                                <div class="analytics-label">
-                                    <div class="analytics-icon" style="background-color:rgba(76, 175, 80, 0.1); color:#4caf50;">
-                                        <i class="fas fa-egg"></i>
-                                    </div>
-                                    <div>
-                                        <div class="analytics-name">Eggs in last 5 minutes</div>
-                                        <div class="analytics-sub">All lines combined</div>
-                                    </div>
-                                </div>
-                                <div class="analytics-value">142</div>
-                            </li>
-                            <li class="analytics-item">
-                                <div class="analytics-label">
-                                    <div class="analytics-icon" style="background-color:rgba(244, 67, 54, 0.1); color:#f44336;">
-                                        <i class="fas fa-times"></i>
-                                    </div>
-                                    <div>
-                                        <div class="analytics-name">Defects in last 5 min</div>
-                                        <div class="analytics-sub">All lines combined</div>
-                                    </div>
-                                </div>
-                                <div class="analytics-value">7</div>
-                            </li>
-                            <li class="analytics-item">
-                                <div class="analytics-label">
-                                    <div class="analytics-icon" style="background-color:rgba(33, 150, 243, 0.1); color:#2196f3;">
-                                        <i class="fas fa-tachometer-alt"></i>
-                                    </div>
-                                    <div>
-                                        <div class="analytics-name">Current total speed</div>
-                                        <div class="analytics-sub">Eggs per hour</div>
-                                    </div>
-                                </div>
-                                <div class="analytics-value">2,848</div>
-                            </li>
-                            <li class="analytics-item">
-                                <div class="analytics-label">
-                                    <div class="analytics-icon" style="background-color:rgba(255, 152, 0, 0.1); color:#ff9800;">
-                                        <i class="fas fa-percentage"></i>
-                                    </div>
-                                    <div>
-                                        <div class="analytics-name">Current defect rate</div>
-                                        <div class="analytics-sub">Percentage</div>
-                                    </div>
-                                </div>
-                                <div class="analytics-value">4.9%</div>
-                            </li>
-                        </ul>
-
-                        <div class="size-distribution">
-                            <h3 style="margin-bottom:15px; font-size:16px;">Size Distribution (Today)</h3>
-                            <div class="size-bar">
-                                <div class="size-segment segment-small">Small 15%</div>
-                                <div class="size-segment segment-medium">Medium 30%</div>
-                                <div class="size-segment segment-large">Large 40%</div>
-                                <div class="size-segment segment-xl">XL 15%</div>
-                            </div>
-                            <div class="size-labels">
-                                <div>S: 1,279</div>
-                                <div>M: 2,557</div>
-                                <div>L: 3,410</div>
-                                <div>XL: 1,279</div>
-                            </div>
+                        <canvas id="sizeChart" width="400" height="250" style="max-width:100%; height:auto;"></canvas>
+                        <div style="margin-top: 20px; text-align: center;">
+                            <p>Total eggs counted today: <strong id="totalEggsToday">0</strong></p>
+                            <p>Cracked eggs: <strong id="totalCrackedToday">0</strong> (<span id="crackRate">0</span>%)</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Performance Card -->
+                <!-- Performance Card (Line Performance Bar Chart) -->
                 <div class="performance-card">
                     <div class="card-header">
                         <h2 class="card-title">Line Performance</h2>
@@ -1100,37 +821,10 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <div class="performance-metrics">
-                            <div class="metric-card">
-                                <div class="metric-value">2,138</div>
-                                <div class="metric-label">Line 1 (Eggs/hr)</div>
-                                <div class="metric-trend positive">+8.2%</div>
-                            </div>
-                            <div class="metric-card">
-                                <div class="metric-value">2,405</div>
-                                <div class="metric-label">Line 2 (Eggs/hr)</div>
-                                <div class="metric-trend positive">+12.5%</div>
-                            </div>
-                            <div class="metric-card">
-                                <div class="metric-value">1,987</div>
-                                <div class="metric-label">Line 3 (Eggs/hr)</div>
-                                <div class="metric-trend negative">-3.2%</div>
-                            </div>
-                            <div class="metric-card">
-                                <div class="metric-value">2,724</div>
-                                <div class="metric-label">Line 4 (Eggs/hr)</div>
-                                <div class="metric-trend positive">+15.8%</div>
-                            </div>
-                        </div>
-                        <div style="margin-top:25px; padding-top:20px; border-top:1px solid var(--light-gray);">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                                <span>Most Productive Line:</span>
-                                <span style="font-weight:600;">Line 4</span>
-                            </div>
-                            <div style="display:flex; justify-content:space-between;">
-                                <span>Best Quality Rate:</span>
-                                <span style="font-weight:600;">Line 1 (96.2%)</span>
-                            </div>
+                        <canvas id="lineChart" width="400" height="250" style="max-width:100%; height:auto;"></canvas>
+                        <div style="margin-top: 20px; text-align: center;">
+                            <p>Most Productive Line: <strong id="bestLine">-</strong> (<span id="bestLineCount">0</span> eggs)</p>
+                            <p>Best Quality Rate: <strong id="bestQualityLine">-</strong> (<span id="bestQualityRate">0</span>%)</p>
                         </div>
                     </div>
                 </div>
@@ -1138,39 +832,65 @@
 
             <!-- Charts and Reporting -->
             <div class="charts-grid">
+                <!-- Second row: Line View & Shade Performance -->
+                <!-- <div class="charts-grid" style="margin-top: 30px;"> -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Line View</h3>
+                        <!-- <select id="defectRange" style="padding:8px; border-radius:4px; border:1px solid var(--light-gray);">
+                            <option value="24">Last 24 hours</option>
+                            <option value="48">Last 48 hours</option>
+                            <option value="168">Last 7 days</option>
+                        </select> -->
+                        <div class="card-status">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Live</span>
+                        </div>
+                    </div>
+                    <canvas id="lineViewChart" width="400" height="250" style="max-width:100%; height:auto;"></canvas>
+                </div>
+                    
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Shade Performance</h3>
+                        <!-- <select id="defectRange" style="padding:8px; border-radius:4px; border:1px solid var(--light-gray);">
+                            <option value="24">Last 24 hours</option>
+                            <option value="48">Last 48 hours</option>
+                            <option value="168">Last 7 days</option>
+                        </select> -->
+                        <div class="card-status">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Live</span>
+                        </div>
+                    </div>
+                    <canvas id="shadeChart" width="400" height="250" style="max-width:100%; height:auto;"></canvas>
+                </div>
+
+                <!-- Charts and Reporting -->
                 <div class="chart-container">
                     <div class="chart-header">
                         <h3 class="chart-title">Hourly Production Trend</h3>
-                        <select style="padding:8px; border-radius:4px; border:1px solid var(--light-gray);">
-                            <option>Today</option>
-                            <option>Yesterday</option>
-                            <option>Last 7 days</option>
+                        <select id="hourlyRange" style="padding:8px; border-radius:4px; border:1px solid var(--light-gray);">
+                            <option value="24">Last 24 hours</option>
+                            <option value="48">Last 48 hours</option>
+                            <option value="168">Last 7 days</option>
                         </select>
                     </div>
-                    <div class="chart-placeholder">
-                        <div style="text-align:center;">
-                            <i class="fas fa-chart-line" style="font-size:48px; color:#ddd; margin-bottom:15px;"></i>
-                            <p>Hourly production chart visualization</p>
-                        </div>
-                    </div>
+                    <canvas id="hourlyChart" width="400" height="250" style="max-width:100%; height:auto;"></canvas>
                 </div>
                 
                 <div class="chart-container">
                     <div class="chart-header">
                         <h3 class="chart-title">Defect Rate Over Time</h3>
-                        <select style="padding:8px; border-radius:4px; border:1px solid var(--light-gray);">
-                            <option>Today</option>
-                            <option>Yesterday</option>
-                            <option>Last 7 days</option>
+                        <select id="defectRange" style="padding:8px; border-radius:4px; border:1px solid var(--light-gray);">
+                            <option value="24">Last 24 hours</option>
+                            <option value="48">Last 48 hours</option>
+                            <option value="168">Last 7 days</option>
                         </select>
                     </div>
-                    <div class="chart-placeholder">
-                        <div style="text-align:center;">
-                            <i class="fas fa-chart-area" style="font-size:48px; color:#ddd; margin-bottom:15px;"></i>
-                            <p>Defect rate trend visualization</p>
-                        </div>
-                    </div>
+                    <canvas id="defectChart" width="400" height="250" style="max-width:100%; height:auto;"></canvas>
                 </div>
+                <!-- </div> -->
             </div>
         </div>
 
@@ -1190,24 +910,14 @@
             </div>
 
             <div class="camera-grid" id="camera-grid">
-                <!-- Lines will be dynamically updated here. 
-                    Ensure IDs match your config/cameras.yaml (e.g., id: 1, id: 2) -->
-                
-                <!-- Line 1 -->
+                <!-- Lines 1-4 dynamically updated -->
                 <div class="camera-card" id="card-1">
                     <div class="camera-header">
                         <div class="camera-title"><i class="fas fa-video"></i> <span id="line1-name">Conveyor Line 1</span></div>
                         <div class="camera-status"><span class="status-indicator active"></span><span>Live</span></div>
                     </div>
-                    <!-- <div class="camera-feed" id="camera-feed-1">
-                        
-                        <div class="placeholder-text" style="color:gray;">Connecting to AI Engine...</div>
-                    </div> -->
-                    <!-- <div class="camera-feed" id="camera-feed-1">
-                        <img src="/api/stats/1" style="width:100%; height:100%; object-fit:contain;" onerror="this.src='https://via.placeholder.com/640x480?text=Line+1+Offline'">
-                    </div> -->
                     <div class="camera-feed" id="camera-feed-1">
-                        <video id="video-1" autoplay playsinline style="width:100%; height:100%; object-fit:contain; background:black;"></video>
+                        <video id="video-1" autoplay playsinline></video>
                     </div>
                     <div class="camera-stats">
                         <div class="stat-item">
@@ -1224,21 +934,13 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Line 2 (Repeat for Line 2) -->
                 <div class="camera-card" id="card-2">
                     <div class="camera-header">
                         <div class="camera-title"><i class="fas fa-video"></i> <span id="line2-name">Conveyor Line 2</span></div>
                         <div class="camera-status"><span class="status-indicator active"></span><span>Live</span></div>
                     </div>
-                    <!-- <div class="camera-feed" id="camera-feed-2">
-                        <div class="placeholder-text" style="color:gray;">Waiting for Stream...</div>
-                    </div> -->
-                    <!-- <div class="camera-feed" id="camera-feed-2">
-                        <img src="/api/stats/2" style="width:100%; height:100%; object-fit:contain;" onerror="this.src='https://via.placeholder.com/640x480?text=Line+2+Offline'">
-                    </div> -->
                     <div class="camera-feed" id="camera-feed-2">
-                        <video id="video-2" autoplay playsinline style="width:100%; height:100%; object-fit:contain; background:black;"></video>
+                        <video id="video-2" autoplay playsinline></video>
                     </div>
                     <div class="camera-stats">
                         <div class="stat-item">
@@ -1255,21 +957,13 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Line 3 (Repeat for Line 3) -->
                 <div class="camera-card" id="card-3">
                     <div class="camera-header">
                         <div class="camera-title"><i class="fas fa-video"></i> <span id="line3-name">Conveyor Line 3</span></div>
                         <div class="camera-status"><span class="status-indicator active"></span><span>Live</span></div>
                     </div>
-                    <!-- <div class="camera-feed" id="camera-feed-2">
-                        <div class="placeholder-text" style="color:gray;">Waiting for Stream...</div>
-                    </div> -->
-                    <!-- <div class="camera-feed" id="camera-feed-2">
-                        <img src="/api/stats/2" style="width:100%; height:100%; object-fit:contain;" onerror="this.src='https://via.placeholder.com/640x480?text=Line+2+Offline'">
-                    </div> -->
                     <div class="camera-feed" id="camera-feed-3">
-                        <video id="video-3" autoplay playsinline style="width:100%; height:100%; object-fit:contain; background:black;"></video>
+                        <video id="video-3" autoplay playsinline></video>
                     </div>
                     <div class="camera-stats">
                         <div class="stat-item">
@@ -1286,21 +980,13 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Line 4 (Repeat for Line 4) -->
                 <div class="camera-card" id="card-4">
                     <div class="camera-header">
                         <div class="camera-title"><i class="fas fa-video"></i> <span id="line4-name">Conveyor Line 4</span></div>
                         <div class="camera-status"><span class="status-indicator active"></span><span>Live</span></div>
                     </div>
-                    <!-- <div class="camera-feed" id="camera-feed-2">
-                        <div class="placeholder-text" style="color:gray;">Waiting for Stream...</div>
-                    </div> -->
-                    <!-- <div class="camera-feed" id="camera-feed-2">
-                        <img src="/api/stats/2" style="width:100%; height:100%; object-fit:contain;" onerror="this.src='https://via.placeholder.com/640x480?text=Line+2+Offline'">
-                    </div> -->
                     <div class="camera-feed" id="camera-feed-4">
-                        <video id="video-4" autoplay playsinline style="width:100%; height:100%; object-fit:contain; background:black;"></video>
+                        <video id="video-4" autoplay playsinline></video>
                     </div>
                     <div class="camera-stats">
                         <div class="stat-item">
@@ -1320,29 +1006,29 @@
             </div>
         </div>
 
-    <!-- ══ Single-View Overlay ══════════════════════════════════ -->
-    <div id="single-view-overlay" role="dialog" aria-modal="true" aria-label="Single line view">
-        <div id="sv-header">
-            <div id="sv-title">
-                <i class="fas fa-video"></i>
-                <span id="sv-line-name">Conveyor Line 1</span>
-                <span class="status-indicator active" style="margin-left:6px;"></span>
-                <span style="font-size:13px; color:#b0b7c3;">Live</span>
+        <!-- Single-View Overlay -->
+        <div id="single-view-overlay" role="dialog" aria-modal="true" aria-label="Single line view">
+            <div id="sv-header">
+                <div id="sv-title">
+                    <i class="fas fa-video"></i>
+                    <span id="sv-line-name">Conveyor Line 1</span>
+                    <span class="status-indicator active" style="margin-left:6px;"></span>
+                    <span style="font-size:13px; color:#b0b7c3;">Live</span>
+                </div>
+                <button id="sv-close" title="Close (Esc)"><i class="fas fa-times"></i></button>
             </div>
-            <button id="sv-close" title="Close (Esc)"><i class="fas fa-times"></i></button>
+            <div id="sv-body">
+                <button class="sv-nav-btn" id="sv-prev" title="Previous line"><i class="fas fa-chevron-left"></i></button>
+                <video id="sv-video" autoplay playsinline muted></video>
+                <button class="sv-nav-btn" id="sv-next" title="Next line"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div id="sv-footer">
+                <div class="sv-stat"><span class="sv-stat-val" id="sv-count">0</span><span class="sv-stat-lbl">Total Count</span></div>
+                <div class="sv-stat"><span class="sv-stat-val" id="sv-quality">100%</span><span class="sv-stat-lbl">Quality Rate</span></div>
+                <div class="sv-stat"><span class="sv-stat-val" id="sv-defects">0%</span><span class="sv-stat-lbl">Defect Rate</span></div>
+            </div>
+            <div id="sv-dots"></div>
         </div>
-        <div id="sv-body">
-            <button class="sv-nav-btn" id="sv-prev" title="Previous line"><i class="fas fa-chevron-left"></i></button>
-            <video id="sv-video" autoplay playsinline muted></video>
-            <button class="sv-nav-btn" id="sv-next" title="Next line"><i class="fas fa-chevron-right"></i></button>
-        </div>
-        <div id="sv-footer">
-            <div class="sv-stat"><span class="sv-stat-val" id="sv-count">0</span><span class="sv-stat-lbl">Total Count</span></div>
-            <div class="sv-stat"><span class="sv-stat-val" id="sv-quality">100%</span><span class="sv-stat-lbl">Quality Rate</span></div>
-            <div class="sv-stat"><span class="sv-stat-val" id="sv-defects">0%</span><span class="sv-stat-lbl">Defect Rate</span></div>
-        </div>
-        <div id="sv-dots"></div>
-    </div>
 
     </main>
 
@@ -1351,7 +1037,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-logo">AI Egg Counting & Quality Grading System</div>
-                <div class="system-version">Version 1.0.0 | Last Updated: Mar 16, 2026</div>
+                <div class="system-version">Version 1.0.0 | Last Updated: Mar 25, 2026</div>
             </div>
             <div class="copyright">
                 &copy; 2026 EggTrack AI - PRAN-RFL Solutions. All rights reserved | Contact: sujanprangroup@gmail.com.
@@ -1360,412 +1046,433 @@
     </footer>
 
     <script>
-        // --- 1. Industrial WebRTC Implementation ---
+        // ---------- WebRTC ----------
+        const LINE_IDS = [1,2,3,4];
+        const ICE_CONFIG = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+        const peerConnections = {};
+        let streamsActive = false;
+        let lastStats = {};
+
         async function startWebRTC(lineId, videoElementId) {
+            if (peerConnections[lineId]) return;
             const videoEl = document.getElementById(videoElementId);
             if (!videoEl) return;
-
-            // Industrial standard STUN server for ICE negotiation
-            const pc = new RTCPeerConnection({
-                iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
-            });
-
-            // Handle incoming stream from AI Server
-            pc.ontrack = (event) => {
-                if (videoEl.srcObject !== event.streams[0]) {
-                    videoEl.srcObject = event.streams[0];
-                    console.log(`WebRTC Stream started for Line ${lineId}`);
-                }
-            };
-
-            // Add dummy transceiver to receive video only
-            pc.addTransceiver('video', { direction: 'recvonly' });
-
-            // Create and set local SDP offer
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-
-            // Signaling: Send offer to FastAPI backend
-            try {
-                const response = await fetch(`/offer/${lineId}`, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        sdp: pc.localDescription.sdp,
-                        type: pc.localDescription.type
-                    }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                if (!response.ok) throw new Error(`Server error: ${response.status}`);
-                
-                const answer = await response.json();
-                await pc.setRemoteDescription(new RTCSessionDescription(answer));
-            } catch (e) {
-                console.error(`WebRTC Negotiation Failed for Line ${lineId}:`, e);
-                // Retry logic for industrial stability
-                setTimeout(() => startWebRTC(lineId, videoElementId), 5000);
-            }
-        }
-
-        // --- 2. Navigation Logic (Kept Original) ---
-        function showPage(pageName) {
-            const dashboard = document.getElementById('dashboard-page');
-            const liveFeed = document.getElementById('live-feed-page');
-            
-            dashboard.style.display = pageName === 'dashboard' ? 'block' : 'none';
-            liveFeed.style.display = pageName === 'live-feed' ? 'block' : 'none';
-
-            if (pageName === 'analytics' || pageName === 'settings') {
-                dashboard.style.display = 'block'; 
-                showNotification(`${pageName.charAt(0).toUpperCase() + pageName.slice(1)} page is under development`, 'info');
-            }
-        }
-
-        // --- 3. View Controls (Kept Original) ---
-        function updateCameraView(view) {
-            const cameraGrid = document.getElementById('camera-grid');
-            const cameraCards = document.querySelectorAll('.camera-card');
-            if (view === 'single') {
-                cameraGrid.classList.add('full-view');
-                cameraCards.forEach((card, index) => {
-                    card.style.display = index === 0 ? 'block' : 'none';
-                });
-            } else {
-                cameraGrid.classList.remove('full-view');
-                cameraCards.forEach(card => card.style.display = 'block');
-            }
-        }
-
-        // --- 4. Professional Notifications (Kept Original) ---
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = 'notification-toast';
-            notification.style.cssText = `
-                position: fixed; top: 100px; right: 20px; padding: 15px 20px;
-                border-radius: 8px; color: white; font-weight: 500;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000;
-                background-color: ${type === 'success' ? '#4caf50' : type === 'warning' ? '#ff9800' : type === 'error' ? '#f44336' : '#2196f3'};
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 3000);
-        }
-
-        // --- 5. Main Initialization ---
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initial Page setup
-            showPage('dashboard');
-
-            // Start WebRTC Streams for Industrial RTSP Delivery
-            // IDs must match your cameras.yaml (1 and 2)
-            startWebRTC("1", "video-1");
-            startWebRTC("2", "video-2");
-
-            // Navigation Click Events
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                    this.classList.add('active');
-                    showPage(this.getAttribute('data-page'));
-                });
-            });
-
-            // View Switching Events
-            document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const view = this.getAttribute('data-view');
-                    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    updateCameraView(view);
-                });
-            });
-
-            // --- 6. Stats WebSocket (Numbers and Logic only) ---
-            const socket = new WebSocket(`ws://${window.location.host}/ws/stats`);
-
-            socket.onmessage = (event) => {
-                const allLines = JSON.parse(event.data);
-                let totalCount = 0;
-                let totalBroken = 0;
-
-                Object.keys(allLines).forEach(id => {
-                    const data = allLines[id];
-                    if (!data.stats) return;
-
-                    // Update Per-Line Stats in Live Feed
-                    const countEl = document.getElementById(`line${id}-count`);
-                    const qualityEl = document.getElementById(`line${id}-quality`);
-                    const defectsEl = document.getElementById(`line${id}-defects`);
-
-                    if (countEl) countEl.innerText = data.stats.total.toLocaleString();
-                    
-                    const defectRate = ((data.stats.broken / data.stats.total) * 100 || 0).toFixed(1);
-                    if (defectsEl) defectsEl.innerText = defectRate + "%";
-                    if (qualityEl) qualityEl.innerText = (100 - defectRate).toFixed(1) + "%";
-
-                    totalCount += data.stats.total;
-                    totalBroken += data.stats.broken;
-                });
-
-                // Update Main Dashboard Stats
-                const totalEggsEl = document.getElementById('totalEggs');
-                const brokenEggsEl = document.getElementById('brokenEggs');
-                const qualityEggsEl = document.getElementById('qualityEggs');
-
-                if (totalEggsEl) totalEggsEl.innerText = totalCount.toLocaleString();
-                if (brokenEggsEl) brokenEggsEl.innerText = totalBroken.toLocaleString();
-                if (qualityEggsEl) qualityEggsEl.innerText = (totalCount - totalBroken).toLocaleString();
-            };
-
-            // --- 7. Control Button Listeners ---
-            document.getElementById('exportReportBtn').addEventListener('click', () => {
-                showNotification('Generating Daily Production Report...', 'info');
-                // Logic for CSV export trigger here
-            });
-
-            document.getElementById('startAllBtn').addEventListener('click', () => {
-                showNotification('AI Counting Engines Started', 'success');
-            });
-
-            document.getElementById('pauseAllBtn').addEventListener('click', () => {
-                showNotification('AI Counting Engines Paused', 'warning');
-            });
-        });
-
-
-        // ════════════════════════════════════════════════════════
-        // EggTrackAI  –  Live Feed JavaScript
-        //
-        // Features added ():
-        //   A) Stream lifecycle  – WebRTC connections are started
-        //      ONLY when the user navigates to the Live Feed page
-        //      and are fully closed when they leave.
-        //   B) Click-to-expand  – clicking any camera-feed card in
-        //      grid view opens the Single-View Overlay; the overlay
-        //      reuses the same RTCPeerConnection already established
-        //      for that line (zero extra server load).
-        //   C) Prev / Next navigation inside the overlay.
-        //   D) Keyboard support – Esc to close, ← → to navigate.
-        // ════════════════════════════════════════════════════════
-
-        // ── Config ──────────────────────────────────────────────
-        const LINE_IDS   = [1, 2, 3, 4];   // must match cameras.yaml
-        const ICE_CONFIG = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-
-        // ── State ────────────────────────────────────────────────
-        const peerConnections = {};   // lineId  → RTCPeerConnection
-        let   streamsActive   = false;
-        let   svCurrentIndex  = 0;   // index into LINE_IDS for overlay
-        let   lastStats       = {};  // lineId  → { total, broken }
-
-        // ════════════════════════════════════════════════════════
-        // SECTION A – WebRTC lifecycle (start / stop all streams)
-        // ════════════════════════════════════════════════════════
-
-        async function startStream(lineId) {
-            if (peerConnections[lineId]) return;   // already connected
-
-            const videoEl = document.getElementById(`video-${lineId}`);
-            if (!videoEl) return;
-
             const pc = new RTCPeerConnection(ICE_CONFIG);
             peerConnections[lineId] = pc;
-
             pc.ontrack = (event) => {
                 if (videoEl.srcObject !== event.streams[0]) {
                     videoEl.srcObject = event.streams[0];
-                    console.log(`[EggTrackAI] Stream started for Line ${lineId}`);
                 }
             };
-
             pc.onconnectionstatechange = () => {
-                if (['failed', 'disconnected'].includes(pc.connectionState)) {
-                    console.warn(`[EggTrackAI] Line ${lineId} connection ${pc.connectionState} — retrying…`);
+                if (['failed','disconnected'].includes(pc.connectionState)) {
                     stopStream(lineId);
-                    setTimeout(() => { if (streamsActive) startStream(lineId); }, 5000);
+                    setTimeout(() => { if (streamsActive) startWebRTC(lineId, videoElementId); }, 5000);
                 }
             };
-
             pc.addTransceiver('video', { direction: 'recvonly' });
-
             const offer = await pc.createOffer();
             await pc.setLocalDescription(offer);
 
+            // Wait for ICE gathering before sending offer to server
+            await new Promise((resolve) => {
+                if (pc.iceGatheringState === 'complete') { resolve(); return; }
+                const check = () => {
+                    if (pc.iceGatheringState === 'complete') {
+                        pc.removeEventListener('icegatheringstatechange', check);
+                        resolve();
+                    }
+                };
+                pc.addEventListener('icegatheringstatechange', check);
+                setTimeout(resolve, 4000);
+            });
+            
+            // Signaling: Send offer to FastAPI backend
             try {
                 const res = await fetch(`/offer/${lineId}`, {
-                    method:  'POST',
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body:    JSON.stringify({ sdp: pc.localDescription.sdp, type: pc.localDescription.type })
+                    body: JSON.stringify({ sdp: pc.localDescription.sdp, type: pc.localDescription.type })
                 });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const answer = await res.json();
                 await pc.setRemoteDescription(new RTCSessionDescription(answer));
             } catch (err) {
-                console.error(`[EggTrackAI] WebRTC negotiation failed for Line ${lineId}:`, err);
+                console.error(`WebRTC negotiation failed for line ${lineId}:`, err);
                 stopStream(lineId);
-                setTimeout(() => { if (streamsActive) startStream(lineId); }, 5000);
+                setTimeout(() => { if (streamsActive) startWebRTC(lineId, videoElementId); }, 5000);
             }
         }
 
         function stopStream(lineId) {
             const pc = peerConnections[lineId];
-            if (!pc) return;
-            pc.close();
-            delete peerConnections[lineId];
-
-            const videoEl = document.getElementById(`video-${lineId}`);
-            if (videoEl) { videoEl.srcObject = null; }
-
-            // If overlay is showing this line, clear it too
-            const svVideo = document.getElementById('sv-video');
-            if (svVideo && LINE_IDS[svCurrentIndex] === lineId) {
-                svVideo.srcObject = null;
+            if (pc) {
+                pc.close();
+                delete peerConnections[lineId];
             }
-            console.log(`[EggTrackAI] Stream stopped for Line ${lineId}`);
+            const videoEl = document.getElementById(`video-${lineId}`);
+            if (videoEl) videoEl.srcObject = null;
         }
 
         function startAllStreams() {
             if (streamsActive) return;
             streamsActive = true;
-            LINE_IDS.forEach(id => startStream(id));
-            console.log('[EggTrackAI] All streams started');
+            LINE_IDS.forEach(id => startWebRTC(id, `video-${id}`));
         }
 
         function stopAllStreams() {
             streamsActive = false;
             LINE_IDS.forEach(id => stopStream(id));
-            console.log('[EggTrackAI] All streams stopped');
         }
 
-        // ════════════════════════════════════════════════════════
-        // SECTION B – Single-View Overlay
-        // ════════════════════════════════════════════════════════
+        // ---------- Dashboard Charts ----------
+        let sizeChart = null;
+        let lineChart = null;
+        let hourlyChart = null;
+        let defectChart = null;
 
-        const overlay    = document.getElementById('single-view-overlay');
-        const svVideo    = document.getElementById('sv-video');
-        const svLineName = document.getElementById('sv-line-name');
-        const svCount    = document.getElementById('sv-count');
-        const svQuality  = document.getElementById('sv-quality');
-        const svDefects  = document.getElementById('sv-defects');
-        const svDotsEl   = document.getElementById('sv-dots');
+        function initSizeChart() {
+            const ctx = document.getElementById('sizeChart').getContext('2d');
+            sizeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    // labels: ['Small', 'Standard', 'Big', 'Cracked'],  //090426
+                    labels: ['Small', 'Medium', 'Higher Medium', 'Big', 'Large', 'Cracked'],
+                    datasets: [{
+                        label: 'Egg Count',
+                        data: [0,0,0,0,0,0],
+                        // backgroundColor: ['#4caf50', '#2196f3', '#ff9800', '#f44336'],
+                        backgroundColor: ['#4caf50', '#00ff00', '#ffff00', '#ff9800', '#ff00ff', '#f44336'],
+                        borderWidth: 0,
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toLocaleString()} eggs` } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Count' } },
+                        x: { title: { display: true, text: 'Size Category' } }
+                    }
+                }
+            });
+        }
 
-        // Build dot strip
-        LINE_IDS.forEach((id, i) => {
-            const dot = document.createElement('span');
-            dot.className = 'sv-dot' + (i === 0 ? ' active' : '');
-            dot.dataset.index = i;
-            dot.addEventListener('click', () => openOverlay(i));
-            svDotsEl.appendChild(dot);
-        });
+        function initLineChart() {
+            const ctx = document.getElementById('lineChart').getContext('2d');
+            lineChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Line 1', 'Line 2', 'Line 3', 'Line 4'],
+                    datasets: [{
+                        label: 'Total Eggs',
+                        data: [0,0,0,0],
+                        backgroundColor: '#4a6fa5',
+                        borderWidth: 0,
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toLocaleString()} eggs` } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Egg Count' } },
+                        x: { title: { display: true, text: 'Conveyor Line' } }
+                    }
+                }
+            });
+        }
 
-        function openOverlay(index) {
-            svCurrentIndex = ((index % LINE_IDS.length) + LINE_IDS.length) % LINE_IDS.length;
-            const lineId   = LINE_IDS[svCurrentIndex];
+        async function loadHourlyChart(hours = 24) {
+            try {
+                const res = await fetch(`/api/dashboard/hourly?hours=${hours}`);
+                const data = await res.json();
+                const labels = data.map(row => row.hour_slot);
+                const totals = data.map(row => row.total_eggs);
+                if (hourlyChart) {
+                    hourlyChart.data.labels = labels;
+                    hourlyChart.data.datasets[0].data = totals;
+                    hourlyChart.update();
+                } else {
+                    const ctx = document.getElementById('hourlyChart').getContext('2d');
+                    hourlyChart = new Chart(ctx, {
+                        type: 'line',
+                        data: { labels, datasets: [{ label: 'Eggs per hour', data: totals, borderColor: '#2196f3', fill: false }] },
+                        options: { responsive: true, maintainAspectRatio: true }
+                    });
+                }
+            } catch (err) { console.error('Hourly chart error', err); }
+        }
 
-            // Wire the existing RTCPeerConnection's stream to the overlay video
-            const gridVideo = document.getElementById(`video-${lineId}`);
-            if (gridVideo && gridVideo.srcObject) {
-                svVideo.srcObject = gridVideo.srcObject;
+        async function loadDefectChart(hours = 24) {
+            try {
+                const res = await fetch(`/api/dashboard/defect-trend?hours=${hours}`);
+                const data = await res.json();
+                const labels = data.map(row => row.hour_slot);
+                const crackRates = data.map(row => row.crack_rate_pct);
+                if (defectChart) {
+                    defectChart.data.labels = labels;
+                    defectChart.data.datasets[0].data = crackRates;
+                    defectChart.update();
+                } else {
+                    const ctx = document.getElementById('defectChart').getContext('2d');
+                    defectChart = new Chart(ctx, {
+                        type: 'line',
+                        data: { labels, datasets: [{ label: 'Crack Rate (%)', data: crackRates, borderColor: '#f44336', fill: false }] },
+                        options: { responsive: true, maintainAspectRatio: true, scales: { y: { max: 100 } } }
+                    });
+                }
+            } catch (err) { console.error('Defect chart error', err); }
+        }
+
+        // ---------- Helper: Calculate eggs per hour ----------
+        function calculateEggsPerHour(totalEggsToday) {
+            const now = new Date();
+            // hours since midnight (including fractional hours)
+            const hoursSinceMidnight = now.getHours() + now.getMinutes() / 60;
+            if (hoursSinceMidnight <= 0) return 0;
+            return Math.round(totalEggsToday / hoursSinceMidnight);
+        }
+
+
+
+
+
+        // ---------- New Chart Initialisation ----------
+        let lineViewChart = null;   // grouped bar chart for lines
+        let shadeChart = null;      // bar chart for shades
+
+        function initLineViewChart() {
+            const ctx = document.getElementById('lineViewChart').getContext('2d');
+            lineViewChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Line 1', 'Line 2', 'Line 3', 'Line 4'],
+                    datasets: [
+                        { label: 'Small',         data: [0,0,0,0], backgroundColor: '#4caf50', borderWidth: 0, borderRadius: 6 },
+                        { label: 'Medium',        data: [0,0,0,0], backgroundColor: '#00ff00', borderWidth: 0, borderRadius: 6 },
+                        { label: 'Higher Medium', data: [0,0,0,0], backgroundColor: '#ffff00', borderWidth: 0, borderRadius: 6 },
+                        { label: 'Big',           data: [0,0,0,0], backgroundColor: '#ff9800', borderWidth: 0, borderRadius: 6 },
+                        { label: 'Large',         data: [0,0,0,0], backgroundColor: '#ff00ff', borderWidth: 0, borderRadius: 6 },
+                        { label: 'Cracked',       data: [0,0,0,0], backgroundColor: '#f44336', borderWidth: 0, borderRadius: 6 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.toLocaleString()}` } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Egg Count' } },
+                        x: { title: { display: true, text: 'Conveyor Line' } }
+                    }
+                }
+            });
+        }
+
+        function initShadeChart() {
+            const ctx = document.getElementById('shadeChart').getContext('2d');
+            shadeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Total Eggs',
+                        data: [],
+                        backgroundColor: '#4a6fa5',
+                        borderWidth: 0,
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toLocaleString()} eggs` } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Egg Count' } },
+                        x: { title: { display: true, text: 'Shade ID' } }
+                    }
+                }
+            });
+        }
+
+        // Function to fetch shed performance every 5 seconds
+        async function fetchShadePerformance() {
+            try {
+                const res = await fetch('/api/dashboard/shed-performance');
+                const data = await res.json();
+                const labels = data.map(row => row.shed_id);
+                const totals = data.map(row => row.total_eggs);
+                if (shadeChart) {
+                    shadeChart.data.labels = labels;
+                    shadeChart.data.datasets[0].data = totals;
+                    shadeChart.update();
+                }
+            } catch (err) {
+                console.error('Failed to fetch shed performance', err);
             }
+        }
 
-            // Update header
-            svLineName.textContent = `Conveyor Line ${lineId}`;
 
-            // Update stats
-            _refreshSvStats(lineId);
+        // ---------- WebSocket & Live Data ----------
+        const socket = new WebSocket(`ws://${window.location.host}/ws/stats`);
 
-            // Update dots
-            svDotsEl.querySelectorAll('.sv-dot').forEach((d, i) => {
-                d.classList.toggle('active', i === svCurrentIndex);
+        socket.onmessage = (event) => {
+            const allLines = JSON.parse(event.data);
+            let totalCount = 0, totalBroken = 0;
+            // let sizeTotals = { Small: 0, Standard: 0, Big: 0, Cracked: 0 };
+            let sizeTotals = { SMALL:0, MEDIUM:0, HIGHER_MEDIUM:0, BIG:0, LARGE:0, CRACKED:0 };
+            let lineTotals = [];
+
+            // Process each line
+            Object.keys(allLines).forEach(id => {
+                const data = allLines[id];
+                if (!data?.stats) return;
+
+                // Aggregate size totals (for the size distribution chart)
+                const details = data.stats.details || {};
+                // sizeTotals.Small += details.Small || 0;
+                // sizeTotals.Standard += details.Standard || 0;
+                // sizeTotals.Big += details.Big || 0;
+                // sizeTotals.Cracked += details.Cracked || 0;   //090426
+                sizeTotals.SMALL += details.SMALL || 0;
+                sizeTotals.MEDIUM += details.MEDIUM || 0;
+                sizeTotals.HIGHER_MEDIUM += details.HIGHER_MEDIUM || 0;
+                sizeTotals.BIG += details.BIG || 0;
+                sizeTotals.LARGE += details.LARGE || 0;
+                sizeTotals.CRACKED += details.Cracked || 0;
+
+                // Line totals for line performance chart
+                const lineTotal = data.stats.total || 0;
+                lineTotals[id] = lineTotal;
+
+                totalCount += lineTotal;
+                totalBroken += data.stats.broken || 0;
+
+                // Update perâ€‘line stats in the live feed
+                const countEl = document.getElementById(`line${id}-count`);
+                const qualityEl = document.getElementById(`line${id}-quality`);
+                const defectsEl = document.getElementById(`line${id}-defects`);
+                if (countEl) countEl.innerText = lineTotal.toLocaleString();
+                const dr = ((data.stats.broken / lineTotal) * 100 || 0).toFixed(1);
+                if (defectsEl) defectsEl.innerText = dr + '%';
+                if (qualityEl) qualityEl.innerText = (100 - dr).toFixed(1) + '%';
+
+                // Store for overlay
+                lastStats[id] = { total: lineTotal, broken: data.stats.broken };
             });
 
-            overlay.classList.add('open');
-            document.body.style.overflow = 'hidden';
-        }
+            // Update top stats
+            document.getElementById('totalEggs').innerText = totalCount.toLocaleString();
+            document.getElementById('brokenEggs').innerText = totalBroken.toLocaleString();
+            document.getElementById('qualityEggs').innerText = (totalCount - totalBroken).toLocaleString();
 
-        function closeOverlay() {
-            overlay.classList.remove('open');
-            document.body.style.overflow = '';
-            svVideo.srcObject = null;
-        }
+            // Update processing speed
+            const speed = calculateEggsPerHour(totalCount);
+            document.getElementById('processingSpeed').innerText = speed.toLocaleString();
+            document.querySelector('#speedChange span').innerText = `${speed.toLocaleString()} eggs/hour`;
 
-        function navigateOverlay(direction) {
-            // direction: +1 = next, -1 = prev
-            openOverlay(svCurrentIndex + direction);
-        }
-
-        function _refreshSvStats(lineId) {
-            const st = lastStats[lineId];
-            if (!st) return;
-            const total      = st.total  || 0;
-            const broken     = st.broken || 0;
-            const defectRate = total > 0 ? ((broken / total) * 100).toFixed(1) : '0.0';
-            svCount.textContent   = total.toLocaleString();
-            svDefects.textContent = defectRate + '%';
-            svQuality.textContent = (100 - parseFloat(defectRate)).toFixed(1) + '%';
-        }
-
-        // Overlay button wiring
-        document.getElementById('sv-close').addEventListener('click', closeOverlay);
-        document.getElementById('sv-prev').addEventListener('click', () => navigateOverlay(-1));
-        document.getElementById('sv-next').addEventListener('click', () => navigateOverlay(+1));
-
-        // Click-on-background to close
-        overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
-
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (!overlay.classList.contains('open')) return;
-            if (e.key === 'Escape')      closeOverlay();
-            if (e.key === 'ArrowRight')  navigateOverlay(+1);
-            if (e.key === 'ArrowLeft')   navigateOverlay(-1);
-        });
-
-        // Make each grid camera-feed clickable → open overlay
-        LINE_IDS.forEach((id, i) => {
-            const feed = document.getElementById(`camera-feed-${id}`);
-            if (feed) {
-                feed.addEventListener('click', () => {
-                    if (overlay.classList.contains('open')) return;
-                    openOverlay(i);
-                });
+            // Update size distribution bar chart
+            if (sizeChart) {
+                // sizeChart.data.datasets[0].data = [sizeTotals.Small, sizeTotals.Standard, sizeTotals.Big, sizeTotals.Cracked]; //090426
+                sizeChart.data.datasets[0].data = [sizeTotals.SMALL, sizeTotals.MEDIUM, sizeTotals.HIGHER_MEDIUM, sizeTotals.BIG, sizeTotals.LARGE, sizeTotals.CRACKED];
+                sizeChart.update();
             }
-        });
+            
 
-        // ════════════════════════════════════════════════════════
-        // SECTION C – Navigation (stream lifecycle integration)
-        // ════════════════════════════════════════════════════════
+            // Update line performance bar chart
+            if (lineChart) {
+                const lineData = [1,2,3,4].map(id => lineTotals[id] || 0);
+                lineChart.data.datasets[0].data = lineData;
+                lineChart.update();
 
+                // Most productive line
+                let bestLine = 0, bestCount = 0;
+                for (let i = 0; i < lineData.length; i++) {
+                    if (lineData[i] > bestCount) {
+                        bestCount = lineData[i];
+                        bestLine = i+1;
+                    }
+                }
+                document.getElementById('bestLine').innerText = bestLine ? `Line ${bestLine}` : '-';
+                document.getElementById('bestLineCount').innerText = bestCount.toLocaleString();
+
+                // Best quality line
+                let bestQualityLine = 0, bestRate = 100;
+                for (let id of [1,2,3,4]) {
+                    const stats = allLines[id]?.stats;
+                    if (stats && stats.total > 0) {
+                        const rate = (stats.broken / stats.total) * 100;
+                        if (rate < bestRate) {
+                            bestRate = rate;
+                            bestQualityLine = id;
+                        }
+                    }
+                }
+                document.getElementById('bestQualityLine').innerText = bestQualityLine ? `Line ${bestQualityLine}` : '-';
+                document.getElementById('bestQualityRate').innerText = bestQualityLine ? (100 - bestRate).toFixed(1) : '0';
+            }
+
+            // Update Line View chart (grouped bar chart with new size categories)
+            if (lineViewChart) {
+                const lineDataSmall   = [1,2,3,4].map(id => (allLines[id]?.stats?.details?.SMALL || 0));
+                const lineDataMedium  = [1,2,3,4].map(id => (allLines[id]?.stats?.details?.MEDIUM || 0));
+                const lineDataHigherMed = [1,2,3,4].map(id => (allLines[id]?.stats?.details?.HIGHER_MEDIUM || 0));
+                const lineDataBig     = [1,2,3,4].map(id => (allLines[id]?.stats?.details?.BIG || 0));
+                const lineDataLarge   = [1,2,3,4].map(id => (allLines[id]?.stats?.details?.LARGE || 0));
+                const lineDataCracked = [1,2,3,4].map(id => (allLines[id]?.stats?.details?.Cracked || 0));
+
+                lineViewChart.data.datasets[0].data = lineDataSmall;
+                lineViewChart.data.datasets[1].data = lineDataMedium;
+                lineViewChart.data.datasets[2].data = lineDataHigherMed;
+                lineViewChart.data.datasets[3].data = lineDataBig;
+                lineViewChart.data.datasets[4].data = lineDataLarge;
+                lineViewChart.data.datasets[5].data = lineDataCracked;
+                lineViewChart.update();
+            }
+
+            // Update summary text below the size chart
+            document.getElementById('totalEggsToday').innerText = totalCount.toLocaleString();
+            document.getElementById('totalCrackedToday').innerText = totalBroken.toLocaleString();
+            const crackRate = totalCount > 0 ? ((totalBroken / totalCount) * 100).toFixed(1) : 0;
+            document.getElementById('crackRate').innerText = crackRate;
+        };
+
+        // ---------- Navigation & UI ----------
         function showPage(pageName) {
             const dashboard = document.getElementById('dashboard-page');
-            const liveFeed  = document.getElementById('live-feed-page');
-
+            const liveFeed = document.getElementById('live-feed-page');
             dashboard.style.display = pageName === 'dashboard' ? 'block' : 'none';
-            liveFeed.style.display  = pageName === 'live-feed'  ? 'block' : 'none';
-
+            liveFeed.style.display = pageName === 'live-feed' ? 'block' : 'none';
             if (pageName === 'live-feed') {
-                startAllStreams();                          // ← streams ON
+                startAllStreams();
             } else {
                 if (overlay.classList.contains('open')) closeOverlay();
-                stopAllStreams();                           // ← streams OFF
+                stopAllStreams();
             }
-
             if (pageName === 'analytics' || pageName === 'settings') {
                 dashboard.style.display = 'block';
-                showNotification(`${pageName.charAt(0).toUpperCase() + pageName.slice(1)} page is under development`, 'info');
+                showNotification(`${pageName} page is under development`, 'info');
             }
         }
 
-        // ════════════════════════════════════════════════════════
-        // SECTION D – View controls (grid / single button in header)
-        // ════════════════════════════════════════════════════════
-
         function updateCameraView(view) {
-            const cameraGrid  = document.getElementById('camera-grid');
+            const cameraGrid = document.getElementById('camera-grid');
             const cameraCards = document.querySelectorAll('.camera-card');
             if (view === 'single') {
-                // "Single View" header button → just open overlay for line 1
                 openOverlay(0);
             } else {
                 if (overlay.classList.contains('open')) closeOverlay();
@@ -1773,10 +1480,6 @@
                 cameraCards.forEach(card => card.style.display = 'block');
             }
         }
-
-        // ════════════════════════════════════════════════════════
-        // SECTION E – Notifications
-        // ════════════════════════════════════════════════════════
 
         function showNotification(message, type) {
             const n = document.createElement('div');
@@ -1791,18 +1494,87 @@
             setTimeout(() => n.remove(), 3000);
         }
 
-        // ════════════════════════════════════════════════════════
-        // SECTION F – Initialisation
-        // ════════════════════════════════════════════════════════
+        // ---------- Single-View Overlay ----------
+        const overlay = document.getElementById('single-view-overlay');
+        const svVideo = document.getElementById('sv-video');
+        const svLineName = document.getElementById('sv-line-name');
+        const svCount = document.getElementById('sv-count');
+        const svQuality = document.getElementById('sv-quality');
+        const svDefects = document.getElementById('sv-defects');
+        const svDotsEl = document.getElementById('sv-dots');
+        let svCurrentIndex = 0;
 
-        document.addEventListener('DOMContentLoaded', function () {
+        LINE_IDS.forEach((id, i) => {
+            const dot = document.createElement('span');
+            dot.className = 'sv-dot' + (i === 0 ? ' active' : '');
+            dot.dataset.index = i;
+            dot.addEventListener('click', () => openOverlay(i));
+            svDotsEl.appendChild(dot);
+        });
 
-            // Start on dashboard — no streams yet
-            showPage('dashboard');
+        function openOverlay(index) {
+            svCurrentIndex = ((index % LINE_IDS.length) + LINE_IDS.length) % LINE_IDS.length;
+            const lineId = LINE_IDS[svCurrentIndex];
+            const gridVideo = document.getElementById(`video-${lineId}`);
+            if (gridVideo && gridVideo.srcObject) {
+                svVideo.srcObject = gridVideo.srcObject;
+            }
+            svLineName.textContent = `Conveyor Line ${lineId}`;
+            const st = lastStats[lineId] || { total:0, broken:0 };
+            const total = st.total || 0;
+            const broken = st.broken || 0;
+            const defectRate = total > 0 ? ((broken / total) * 100).toFixed(1) : '0.0';
+            svCount.textContent = total.toLocaleString();
+            svDefects.textContent = defectRate + '%';
+            svQuality.textContent = (100 - parseFloat(defectRate)).toFixed(1) + '%';
+            svDotsEl.querySelectorAll('.sv-dot').forEach((d, i) => {
+                d.classList.toggle('active', i === svCurrentIndex);
+            });
+            overlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
 
-            // Navigation clicks
+        function closeOverlay() {
+            overlay.classList.remove('open');
+            document.body.style.overflow = '';
+            svVideo.srcObject = null;
+        }
+
+        function navigateOverlay(delta) {
+            openOverlay(svCurrentIndex + delta);
+        }
+
+        document.getElementById('sv-close').addEventListener('click', closeOverlay);
+        document.getElementById('sv-prev').addEventListener('click', () => navigateOverlay(-1));
+        document.getElementById('sv-next').addEventListener('click', () => navigateOverlay(+1));
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
+        document.addEventListener('keydown', (e) => {
+            if (!overlay.classList.contains('open')) return;
+            if (e.key === 'Escape') closeOverlay();
+            if (e.key === 'ArrowRight') navigateOverlay(+1);
+            if (e.key === 'ArrowLeft') navigateOverlay(-1);
+        });
+        LINE_IDS.forEach((id, i) => {
+            const feed = document.getElementById(`camera-feed-${id}`);
+            if (feed) feed.addEventListener('click', () => openOverlay(i));
+        });
+
+        // ---------- Initialization ----------
+        document.addEventListener('DOMContentLoaded', function() {
+            initSizeChart();
+            initLineChart();
+            initLineViewChart();
+            initShadeChart();
+            loadHourlyChart(24);
+            loadDefectChart(24);
+            fetchShadePerformance();   // initial fetch
+            setInterval(fetchShadePerformance, 5000); // refresh every 5 seconds
+
+            document.getElementById('hourlyRange').addEventListener('change', (e) => loadHourlyChart(e.target.value));
+            document.getElementById('defectRange').addEventListener('change', (e) => loadDefectChart(e.target.value));
+
             document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', function (e) {
+                link.addEventListener('click', function(e) {
                     e.preventDefault();
                     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
                     this.classList.add('active');
@@ -1810,94 +1582,25 @@
                 });
             });
 
-            // Grid / Single view toggle buttons
             document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.addEventListener('click', function () {
+                btn.addEventListener('click', function() {
                     document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
                     updateCameraView(this.getAttribute('data-view'));
                 });
             });
 
-            // Page Visibility API – pause streams when browser tab is hidden
+            document.getElementById('exportReportBtn').addEventListener('click', () => showNotification('Generating Daily Production Report...', 'info'));
+            document.getElementById('startAllBtn').addEventListener('click', () => showNotification('AI Counting Engines Started', 'success'));
+            document.getElementById('pauseAllBtn').addEventListener('click', () => showNotification('AI Counting Engines Paused', 'warning'));
+
             document.addEventListener('visibilitychange', () => {
                 const onLiveFeed = document.getElementById('live-feed-page').style.display !== 'none';
                 if (!onLiveFeed) return;
-                if (document.hidden) {
-                    stopAllStreams();
-                } else {
-                    startAllStreams();
-                }
-            });
-
-            // ── Stats WebSocket ──────────────────────────────────
-            const socket = new WebSocket(`ws://${window.location.host}/ws/stats`);
-
-            socket.onmessage = (event) => {
-                const allLines = JSON.parse(event.data);
-                let totalCount = 0, totalBroken = 0;
-
-                Object.keys(allLines).forEach(id => {
-                    const data = allLines[id];
-                    if (!data.stats) return;
-
-                    // Cache for overlay use
-                    lastStats[id] = { total: data.stats.total, broken: data.stats.broken };
-
-                    const countEl   = document.getElementById(`line${id}-count`);
-                    const qualityEl = document.getElementById(`line${id}-quality`);
-                    const defectsEl = document.getElementById(`line${id}-defects`);
-
-                    if (countEl) countEl.innerText = data.stats.total.toLocaleString();
-                    const dr = ((data.stats.broken / data.stats.total) * 100 || 0).toFixed(1);
-                    if (defectsEl) defectsEl.innerText = dr + '%';
-                    if (qualityEl) qualityEl.innerText = (100 - dr).toFixed(1) + '%';
-
-                    totalCount  += data.stats.total;
-                    totalBroken += data.stats.broken;
-                });
-
-                // Update overlay stats live if open
-                if (overlay.classList.contains('open')) {
-                    _refreshSvStats(LINE_IDS[svCurrentIndex]);
-                }
-
-                const totalEggsEl   = document.getElementById('totalEggs');
-                const brokenEggsEl  = document.getElementById('brokenEggs');
-                const qualityEggsEl = document.getElementById('qualityEggs');
-                if (totalEggsEl)   totalEggsEl.innerText   = totalCount.toLocaleString();
-                if (brokenEggsEl)  brokenEggsEl.innerText  = totalBroken.toLocaleString();
-                if (qualityEggsEl) qualityEggsEl.innerText = (totalCount - totalBroken).toLocaleString();
-            };
-
-            // ── Control buttons ──────────────────────────────────
-            document.getElementById('exportReportBtn').addEventListener('click', () => {
-                showNotification('Generating Daily Production Report...', 'info');
-            });
-            document.getElementById('startAllBtn').addEventListener('click', () => {
-                showNotification('AI Counting Engines Started', 'success');
-            });
-            document.getElementById('pauseAllBtn').addEventListener('click', () => {
-                showNotification('AI Counting Engines Paused', 'warning');
+                if (document.hidden) stopAllStreams();
+                else startAllStreams();
             });
         });
-
-        // ── Dynamic Styles ───────────────────────────────────────
-        const style = document.createElement('style');
-        style.textContent = `
-            .metric-trend { font-size: 12px; margin-top: 5px; }
-            .metric-trend.positive { color: #4caf50; }
-            .metric-trend.negative { color: #f44336; }
-            #camera-feed-1, #camera-feed-2,
-            #camera-feed-3, #camera-feed-4 {
-                transition: box-shadow 0.2s;
-            }
-            #camera-feed-1:hover, #camera-feed-2:hover,
-            #camera-feed-3:hover, #camera-feed-4:hover {
-                box-shadow: 0 0 0 3px var(--primary);
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>
