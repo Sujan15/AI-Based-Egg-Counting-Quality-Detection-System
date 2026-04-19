@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics | AI Egg Counting & Grading System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+
+<style>
+:root {
+  --primary: #4a6fa5; --primary-dark: #385d8a; --secondary: #ff9800;
+  --success: #4caf50; --danger: #f44336; --warning: #ffc107; --info: #2196f3;
+  --light: #f8f9fa; --dark: #343a40; --gray: #6c757d; --light-gray: #e9ecef;
+  --medium-color: #9c27b0; --higher-medium-color: #00bcd4; --large-color: #795548;
+  --border-radius: 8px; --box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: #f5f7fa; color: #333; line-height: 1.6; }
+.container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+
+/* ── HEADER ── */
+header { background: white; box-shadow: var(--box-shadow); position: sticky; top: 0; z-index: 100; }
+.header-content { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
+.logo { display: flex; align-items: center; gap: 12px; }
+.logo-icon { font-size: 28px; color: var(--primary); }
+.logo-text { font-size: 24px; font-weight: 700; color: var(--primary); }
+.logo-text span { color: var(--secondary); }
+nav a { text-decoration: none; color: var(--dark); font-weight: 500; padding: 8px 14px; border-radius: 6px; transition: all 0.2s; margin: 0 2px; }
+nav a:hover { background: var(--light); color: var(--primary); }
+nav a.active { background: var(--primary); color: white; }
+.header-right { display: flex; align-items: center; gap: 14px; }
+.datetime-box { display: flex; flex-direction: column; align-items: center; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 10px; padding: 8px 16px; min-width: 140px; box-shadow: 0 2px 8px rgba(74,111,165,0.4); }
+.datetime-time { font-size: 15px; font-weight: 700; color: white; letter-spacing: 2px; font-variant-numeric: tabular-nums; }
+.datetime-date { font-size: 10px; color: rgba(255,255,255,0.85); font-weight: 500; margin-top: 1px; }
+.datetime-tz { font-size: 9px; color: rgba(255,255,255,0.65); letter-spacing: 1px; }
+.notification-icon { position: relative; font-size: 20px; color: var(--gray); cursor: pointer; }
+.notification-badge { position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; font-size: 10px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.user-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
+
+/* ── BUTTONS ── */
+.btn { padding: 9px 18px; border: none; border-radius: var(--border-radius); font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s; font-size: 14px; }
+.btn-primary { background: var(--primary); color: white; } .btn-primary:hover { background: var(--primary-dark); }
+.btn-success { background: var(--success); color: white; } .btn-success:hover { background: #3d8b40; }
+
+/* ── MAIN ── */
+.main-content { padding: 28px 0; min-height: calc(100vh - 130px); }
+
+/* ── PAGE HEADER ── */
+.an-header { margin-bottom: 24px; }
+.dashboard-title { font-size: 26px; font-weight: 700; color: var(--dark); }
+.dashboard-subtitle { font-size: 14px; color: var(--gray); margin-top: 4px; }
+.an-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 14px; }
+.period-tabs { display: flex; background: var(--light-gray); border-radius: 10px; padding: 4px; gap: 3px; flex-wrap: wrap; }
+.period-tab { padding: 8px 18px; border: none; border-radius: 7px; background: none; font-weight: 600; font-size: 13px; color: var(--gray); cursor: pointer; transition: all 0.25s; }
+.period-tab.active { background: white; color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.date-filter-box { display: none; align-items: center; gap: 8px; background: white; padding: 6px 12px; border-radius: 8px; box-shadow: var(--box-shadow); }
+.date-filter-box.visible { display: flex; }
+.an-select { padding: 6px 10px; border-radius: 6px; border: 1px solid var(--light-gray); font-size: 13px; color: var(--dark); background: white; }
+
+/* ── KPI GRID ── */
+.an-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 22px; }
+.an-kpi { background: white; border-radius: 10px; padding: 20px; box-shadow: var(--box-shadow); border-left: 4px solid var(--primary); }
+.an-kpi.green { border-left-color: var(--success); } .an-kpi.red { border-left-color: var(--danger); } .an-kpi.orange { border-left-color: var(--secondary); } .an-kpi.purple { border-left-color: var(--medium-color); }
+.an-kpi-label { font-size: 11px; color: var(--gray); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.an-kpi-value { font-size: 28px; font-weight: 700; color: var(--dark); }
+.an-kpi-sub { font-size: 12px; color: var(--gray); margin-top: 4px; }
+
+/* ── PIE CHARTS ROW ── */
+.an-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.an-row.full { grid-template-columns: 1fr; }
+.an-row.three { grid-template-columns: 1fr 1fr 1fr; }
+
+/* ── CARDS ── */
+.an-card { background: white; border-radius: 10px; box-shadow: var(--box-shadow); overflow: hidden; }
+.an-card-head { padding: 14px 20px; border-bottom: 1px solid var(--light-gray); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.an-card-title { font-size: 15px; font-weight: 600; color: var(--dark); display: flex; align-items: center; gap: 8px; }
+.an-card-body { padding: 18px; }
+.an-card-body.no-pad { padding: 0; }
+.chart-box { position: relative; height: 260px; }
+.chart-box-sm { position: relative; height: 220px; }
+
+/* ── BADGES ── */
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.badge-blue { background: #e3f2fd; color: #1565c0; } .badge-green { background: #e8f5e9; color: #388e3c; }
+.badge-red { background: #ffebee; color: #c62828; } .badge-orange { background: #fff3e0; color: #e65100; }
+.badge-purple { background: #f3e5f5; color: #6a1b9a; }
+
+/* ── TABLES ── */
+.an-table-wrap { overflow-x: auto; }
+.an-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.an-table th { background: var(--light); padding: 10px 14px; text-align: left; font-weight: 600; color: var(--gray); font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; border-bottom: 1px solid var(--light-gray); }
+.an-table td { padding: 10px 14px; border-bottom: 1px solid var(--light-gray); white-space: nowrap; }
+.an-table tr:last-child td { border-bottom: none; }
+.an-table tr:hover td { background: #f8f9fa; }
+.an-no-data { text-align: center; padding: 40px; color: var(--gray); font-size: 14px; }
+
+/* ── CONVEYOR LEGEND ── */
+.conv-legend { display: flex; gap: 18px; flex-wrap: wrap; padding: 10px 16px; background: var(--light); font-size: 12px; font-weight: 500; }
+.conv-legend-item { display: flex; align-items: center; gap: 6px; }
+.conv-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── SIZE LEGEND ── */
+.size-legend { display: flex; gap: 10px; flex-wrap: wrap; padding: 10px 14px; background: var(--light); font-size: 11px; font-weight: 500; border-top: 1px solid var(--light-gray); }
+.size-legend-item { display: flex; align-items: center; gap: 5px; }
+.size-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+/* ── FILTER ROW ── */
+.filter-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── FOOTER ── */
+footer { background: var(--dark); color: white; padding: 28px 0; margin-top: 30px; }
+.footer-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.copyright { text-align: center; margin-top: 18px; padding-top: 18px; border-top: 1px solid #495057; color: #b0b7c3; font-size: 13px; }
+
+/* ── NOTIFICATION TOAST ── */
+.toast { position: fixed; top: 90px; right: 20px; padding: 14px 20px; border-radius: 8px; color: white; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; transition: opacity 0.3s; font-size: 14px; }
+
+@media (max-width: 1100px) {
+  .an-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .an-row, .an-row.three { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .an-kpi-grid { grid-template-columns: 1fr 1fr; }
+  .header-content { flex-direction: column; gap: 12px; }
+  .datetime-box { min-width: 80px; }
+}
+</style>
+
+<header>
+  <div class="container">
+    <div class="header-content">
+      <div class="logo">
+        <div class="logo-icon"><i class="fas fa-egg"></i></div>
+        <div class="logo-text">AI Egg<span>Counter</span></div>
+      </div>
+      <nav>
+        <a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="live-feed.html"><i class="fas fa-video"></i> Live Feed</a>
+        <a href="analytics.html" class="active"><i class="fas fa-chart-bar"></i> Analytics</a>
+        <a href="#"><i class="fas fa-cog"></i> Settings</a>
+      </nav>
+      <div class="header-right">
+        <div class="datetime-box">
+          <div class="datetime-time" id="live-clock">--:--:--</div>
+          <div class="datetime-date" id="live-date">--- --, ----</div>
+          <div class="datetime-tz">🇧🇩 BD TIME (UTC+6)</div>
+        </div>
+        <div class="notification-icon"><i class="fas fa-bell"></i><div class="notification-badge" id="notif-badge">0</div></div>
+        <div class="user-avatar">OP</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="main-content">
+<div class="container">
+
+  <!-- PAGE HEADER + TOOLBAR -->
+  <div class="an-header">
+
+    <!-- Title Row + Export buttons always visible -->
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px;">
+      <div>
+        <h1 class="dashboard-title"><i class="fas fa-chart-bar" style="color:var(--primary);margin-right:8px;"></i>Analytics & Reports</h1>
+        <p class="dashboard-subtitle">Conveyor & Shed wise production — Oracle DB · APPS Schema</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;">
+        <button class="btn btn-success" id="export-xlsx-btn">
+          <i class="fas fa-file-excel"></i> Export Excel
+        </button>
+        <button class="btn" id="export-pdf-btn" style="background:#e53935;color:white;">
+          <i class="fas fa-file-pdf"></i> Export PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Period tabs + date filters -->
+    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px;">
+      <!-- Period Tabs -->
+      <div class="period-tabs">
+        <button class="period-tab active" data-period="1"><i class="fas fa-calendar-day"></i> Today</button>
+        <button class="period-tab" data-period="2"><i class="fas fa-calendar-week"></i> Last 7 Days</button>
+        <button class="period-tab" data-period="3"><i class="fas fa-calendar-alt"></i> Last 30 Days</button>
+        <button class="period-tab" data-period="specific"><i class="fas fa-calendar"></i> Specific Date</button>
+        <button class="period-tab" data-period="custom"><i class="fas fa-calendar-minus"></i> Date Range</button>
+      </div>
+
+      <!-- Specific Date -->
+      <div class="date-filter-box" id="specific-date-filter">
+        <label style="font-size:13px;font-weight:600;color:var(--gray);">Date:</label>
+        <input type="date" id="single-date" class="an-select" />
+        <button class="btn btn-primary" id="apply-specific" style="padding:6px 12px;font-size:12px;"><i class="fas fa-search"></i> Filter</button>
+      </div>
+
+      <!-- Date Range -->
+      <div class="date-filter-box" id="custom-date-filter">
+        <label style="font-size:13px;font-weight:600;color:var(--gray);">From:</label>
+        <input type="date" id="start-date" class="an-select" />
+        <label style="font-size:13px;font-weight:600;color:var(--gray);">To:</label>
+        <input type="date" id="end-date" class="an-select" />
+        <button class="btn btn-primary" id="apply-custom" style="padding:6px 12px;font-size:12px;"><i class="fas fa-search"></i> Filter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PIE CHARTS ── -->
+  <div class="an-row" style="margin-bottom:20px;">
+    <div class="an-card">
+      <div class="an-card-head">
+        <div class="an-card-title"><i class="fas fa-chart-pie"></i> Size Distribution</div>
+        <span class="badge badge-blue" id="pie-period-label">Today</span>
+      </div>
+      <div class="an-card-body">
+        <div class="chart-box"><canvas id="an-size-pie"></canvas></div>
+      </div>
+    </div>
+    <div class="an-card">
+      <div class="an-card-head">
+        <div class="an-card-title"><i class="fas fa-adjust"></i> Quality Status</div>
+        <span class="badge badge-green" id="pie-quality-label">Today</span>
+      </div>
+      <div class="an-card-body">
+        <div class="chart-box"><canvas id="an-quality-pie"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── KPI CARDS ── -->
+  <div class="an-kpi-grid" style="margin-bottom:20px;">
+    <div class="an-kpi">
+      <div class="an-kpi-label"><i class="fas fa-egg"></i> Total Eggs</div>
+      <div class="an-kpi-value" id="kpi-total">—</div>
+      <div class="an-kpi-sub">All conveyors combined</div>
+    </div>
+    <div class="an-kpi green">
+      <div class="an-kpi-label"><i class="fas fa-check-circle"></i> Good Eggs</div>
+      <div class="an-kpi-value" id="kpi-good">—</div>
+      <div class="an-kpi-sub" id="kpi-quality-pct">0% quality rate</div>
+    </div>
+    <div class="an-kpi red">
+      <div class="an-kpi-label"><i class="fas fa-times-circle"></i> Cracked</div>
+      <div class="an-kpi-value" id="kpi-cracked">—</div>
+      <div class="an-kpi-sub" id="kpi-crack-pct">0% defect rate</div>
+    </div>
+    <div class="an-kpi orange">
+      <div class="an-kpi-label"><i class="fas fa-warehouse"></i> Avg / Shed</div>
+      <div class="an-kpi-value" id="kpi-avg-shed">—</div>
+      <div class="an-kpi-sub">Average eggs per shed</div>
+    </div>
+  </div>
+
+  <!-- ── SHED & CONVEYOR TABLES ── -->
+  <div class="an-row" style="margin-bottom:20px;">
+    <!-- Shed Table -->
+    <div class="an-card">
+      <div class="an-card-head">
+        <div class="an-card-title"><i class="fas fa-warehouse"></i> Shed-wise Production</div>
+        <span class="badge badge-blue">7 Sheds</span>
+      </div>
+      <div class="an-card-body no-pad">
+        <div class="an-table-wrap">
+          <table class="an-table">
+            <thead>
+              <tr>
+                <th>Shed</th><th>Conv</th><th>Total</th>
+                <th>Small</th><th>Medium</th><th>H.Medium</th><th>Big</th><th>Large</th>
+                <th>Cracked</th><th>Crack%</th><th>Quality</th>
+              </tr>
+            </thead>
+            <tbody id="shed-tbody">
+              <tr><td colspan="11" class="an-no-data"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="size-legend">
+          <div class="size-legend-item"><div class="size-dot" style="background:#4caf50;"></div>Small (0–47mm)</div>
+          <div class="size-legend-item"><div class="size-dot" style="background:#9c27b0;"></div>Medium (48–50mm)</div>
+          <div class="size-legend-item"><div class="size-dot" style="background:#00bcd4;"></div>H.Medium (51–52mm)</div>
+          <div class="size-legend-item"><div class="size-dot" style="background:#ff9800;"></div>Big (53–55mm)</div>
+          <div class="size-legend-item"><div class="size-dot" style="background:#795548;"></div>Large (56mm+)</div>
+          <div class="size-legend-item"><div class="size-dot" style="background:#f44336;"></div>Cracked</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conveyor Table -->
+    <div class="an-card">
+      <div class="an-card-head">
+        <div class="an-card-title"><i class="fas fa-stream"></i> Conveyor-wise Production</div>
+        <span class="badge badge-orange">3 Lines</span>
+      </div>
+      <div class="an-card-body no-pad">
+        <div class="conv-legend">
+          <div class="conv-legend-item"><div class="conv-dot" style="background:#4a6fa5;"></div>Conv 1 → SHD001, SHD002, SHD003</div>
+          <div class="conv-legend-item"><div class="conv-dot" style="background:#ff9800;"></div>Conv 2 → SHD004, SHD005, SHD006</div>
+          <div class="conv-legend-item"><div class="conv-dot" style="background:#4caf50;"></div>Conv 3 → SHD007</div>
+        </div>
+        <div class="an-table-wrap">
+          <table class="an-table">
+            <thead>
+              <tr>
+                <th>Conveyor</th><th>Shed</th><th>Total</th>
+                <th>Small</th><th>Medium</th><th>H.Medium</th><th>Big</th><th>Large</th>
+                <th>Cracked</th><th>Crack%</th>
+              </tr>
+            </thead>
+            <tbody id="conveyor-tbody">
+              <tr><td colspan="10" class="an-no-data"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CHARTS ROW 1: Hourly Trend + Size by Shed ── -->
+  <div class="an-row" style="margin-bottom:20px;">
+    <div class="an-card">
+      <div class="an-card-head">
+        <div class="an-card-title"><i class="fas fa-chart-line"></i> Hourly Production Trend</div>
+        <div class="filter-row">
+          <select class="an-select" id="an-shed-filter">
+            <option value="">All Sheds</option>
+            <optgroup label="Conveyor 1">
+              <option>SHD001</option><option>SHD002</option><option>SHD003</option>
+            </optgroup>
+            <optgroup label="Conveyor 2">
+              <option>SHD004</option><option>SHD005</option><option>SHD006</option>
+            </optgroup>
+            <optgroup label="Conveyor 3">
+              <option>SHD007</option>
+            </optgroup>
+          </select>
+          <select class="an-select" id="an-line-filter">
+            <option value="">All Conveyors</option>
+            <option value="1">Conveyor 1</option>
+            <option value="2">Conveyor 2</option>
+            <option value="3">Conveyor 3</option>
+          </select>
+        </div>
+      </div>
+      <div class="an-card-body">
+        <div class="chart-box-sm"><canvas id="an-hourly-chart"></canvas></div>
+      </div>
+    </div>
+    <div class="an-card">
+      <div class="an-card-head">
+        <div class="an-card-title"><i class="fas fa-chart-bar"></i> Size Distribution by Shed</div>
+      </div>
+      <div class="an-card-body">
+        <div class="chart-box-sm"><canvas id="an-size-chart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CHARTS ROW 2: Crack Rate + Shift Breakdown ── -->
+  <div class="an-row" style="margin-bottom:20px;">
+    <div class="an-card">
+      <div class="an-card-head">
+        <div class="an-card-title"><i class="fas fa-bug"></i> Crack Rate by Shed</div>
+        <span style="font-size:12px;color:var(--gray);">% defective per shed</span>
+      </div>
+      <div class="an-card-body">
+        <div class="chart-box-sm"><canvas id="an-crack-chart"></canvas></div>
+      </div>
+    </div>
+    <div class="an-card">
+      <div class="an-card-head">
+        <div class="an-card-title"><i class="fas fa-clock"></i> Shift-wise Breakdown</div>
+        <span style="font-size:12px;color:var(--gray);">
+          <span style="color:#ffd54f;font-weight:700;">■</span> Morning (07:00–14:00) &nbsp;
+          <span style="color:#37474f;font-weight:700;">■</span> Night (14:00–07:00)
+        </span>
+      </div>
+      <div class="an-card-body">
+        <div class="chart-box-sm"><canvas id="an-shift-chart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DAILY DETAIL TABLE ── -->
+  <div class="an-row full" style="margin-bottom:20px;">
+    <div class="an-card">
+      <div class="an-card-head">
+        <div class="an-card-title"><i class="fas fa-table"></i> Daily Detail Report</div>
+        <span style="font-size:12px;color:var(--gray);" id="an-row-count">— records</span>
+      </div>
+      <div class="an-card-body no-pad">
+        <div class="an-table-wrap">
+          <table class="an-table">
+            <thead>
+              <tr>
+                <th>Date</th><th>Shed</th><th>Conv</th><th>Total</th>
+                <th>Small</th><th>Medium</th><th>H.Medium</th><th>Big</th><th>Large</th>
+                <th>Cracked</th><th>Good</th><th>Crack%</th>
+                <th>Morning</th><th>Night</th>
+              </tr>
+            </thead>
+            <tbody id="an-daily-tbody">
+              <tr><td colspan="14" class="an-no-data"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div style="font-size:18px;font-weight:700;">AI Egg Counting & Quality Grading System</div>
+      <div style="font-size:13px;color:#b0b7c3;">Version 1.0.0 | PRAN-RFL Group</div>
+    </div>
+    <div class="copyright">&copy; 2026 EggTrack AI — PRAN-RFL Solutions. All rights reserved | sujanprangroup@gmail.com</div>
+  </div>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIGURATION — Updated for current DB schema
+// ══════════════════════════════════════════════════════
+const CONV_SHEDS   = { 1: ['SHD001','SHD002','SHD003'], 2: ['SHD004','SHD005','SHD006'], 3: ['SHD007'] };
+const SHED_CONV    = { 'SHD001':1,'SHD002':1,'SHD003':1,'SHD004':2,'SHD005':2,'SHD006':2,'SHD007':3 };
+const CONV_COLORS  = { 1: '#4a6fa5', 2: '#ff9800', 3: '#4caf50' };
+const SIZE_COLORS  = {
+  SMALL:         '#4caf50',
+  MEDIUM:        '#9c27b0',
+  HIGHER_MEDIUM: '#00bcd4',
+  BIG:           '#ff9800',
+  LARGE:         '#795548',
+  CRACKED:       '#f44336'
+};
+const SIZE_LABELS = {
+  SMALL: 'Small', MEDIUM: 'Medium', HIGHER_MEDIUM: 'H.Medium',
+  BIG: 'Big', LARGE: 'Large', CRACKED: 'Cracked'
+};
+const PERIOD_LABELS = {
+  '1': 'Today', '2': 'Last 7 Days', '3': 'Last 30 Days',
+  'specific': 'Specific Date', 'custom': 'Date Range'
+};
+
+// ══════════════════════════════════════════════════════
+//  BD CLOCK (UTC+6)
+// ══════════════════════════════════════════════════════
+(function bdClock() {
+  const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function tick() {
+    const bd = new Date(Date.now() + 6 * 3600000);
+    const hh = String(bd.getUTCHours()).padStart(2,'0');
+    const mm = String(bd.getUTCMinutes()).padStart(2,'0');
+    const ss = String(bd.getUTCSeconds()).padStart(2,'0');
+    document.getElementById('live-clock').textContent = `${hh}:${mm}:${ss}`;
+    document.getElementById('live-date').textContent  =
+      `${DAYS[bd.getUTCDay()]}, ${MONTHS[bd.getUTCMonth()]} ${bd.getUTCDate()}, ${bd.getUTCFullYear()}`;
+  }
+  tick(); setInterval(tick, 1000);
+})();
+
+// ══════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════
+function formatOracleDate(ymd) {
+  if (!ymd) return '';
+  const p = ymd.split('-');
+  const M = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  return `${p[2]}-${M[parseInt(p[1])-1]}-${p[0].substring(2)}`;
+}
+function setEl(id, v) { const e = document.getElementById(id); if (e) e.innerHTML = v; }
+function n(v) { return (v || 0).toLocaleString(); }
+function pct(v) { return parseFloat(v || 0).toFixed(1); }
+function badgePct(p) {
+  const f = parseFloat(p || 0);
+  return f > 5
+    ? `<span class="badge badge-red">${f.toFixed(1)}%</span>`
+    : `<span class="badge badge-green">${f.toFixed(1)}%</span>`;
+}
+
+async function apiFetch(url) {
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } catch (e) {
+    console.error('API Error:', url, e);
+    return null;
+  }
+}
+
+function showToast(msg, type = 'info') {
+  const colors = { success:'#4caf50', warning:'#ff9800', error:'#f44336', info:'#2196f3' };
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.style.background = colors[type] || colors.info;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 2700);
+}
+
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+let anPeriod = '1';
+let _shedData = [], _convData = [], _dailyData = [];
+let chartSizePie = null, chartQualityPie = null;
+let chartHourly = null, chartSizeBar = null, chartCrack = null, chartShift = null;
+
+// ══════════════════════════════════════════════════════
+//  BUILD QUERY STRING
+// ══════════════════════════════════════════════════════
+function buildQS() {
+  if (anPeriod === 'specific') {
+    const d = document.getElementById('single-date').value;
+    if (!d) { showToast('Please select a date', 'warning'); return null; }
+    const od = formatOracleDate(d);
+    return `start_date=${od}&end_date=${od}`;
+  }
+  if (anPeriod === 'custom') {
+    const s = document.getElementById('start-date').value;
+    const e = document.getElementById('end-date').value;
+    if (!s || !e) { showToast('Please select both start and end dates', 'warning'); return null; }
+    return `start_date=${formatOracleDate(s)}&end_date=${formatOracleDate(e)}`;
+  }
+  return `period=${anPeriod}`;
+}
+
+// ══════════════════════════════════════════════════════
+//  LOAD ANALYTICS
+// ══════════════════════════════════════════════════════
+async function loadAnalytics() {
+  const qs = buildQS();
+  if (qs === null) return;
+
+  setEl('kpi-total', '<i class="fas fa-spinner fa-spin"></i>');
+
+  const shed = document.getElementById('an-shed-filter')?.value || '';
+  const line = document.getElementById('an-line-filter')?.value || '';
+
+  // Build filtered QS for all endpoints
+  const filterQS = qs
+    + (shed ? `&shed_id=${shed}` : '')
+    + (line ? `&line_id=${line}` : '');
+
+  const [shedRes, convRes, hourlyRes, crackRes, shiftRes, dailyRes] = await Promise.all([
+    apiFetch(`/api/analytics/shed-summary?${filterQS}`),
+    apiFetch(`/api/analytics/conveyor-summary?${filterQS}`),
+    apiFetch(`/api/analytics/hourly-trend?${filterQS}`),
+    apiFetch(`/api/analytics/crack-analysis?${filterQS}`),
+    apiFetch(`/api/analytics/shift-report?${filterQS}`),
+    apiFetch(`/api/analytics/daily-table?${filterQS}`)
+  ]);
+
+  _shedData  = shedRes?.data  || [];
+  _convData  = convRes?.data  || [];
+  _dailyData = dailyRes?.data || [];
+
+  renderKPIs(_shedData);
+  renderShedTable(_shedData);
+  renderConvTable(_convData);
+  renderHourlyChart(hourlyRes?.data || []);
+  renderSizeByShedException(_shedData);
+  renderCrackChart(crackRes?.data || []);
+  renderShiftChart(shiftRes?.data || []);
+  renderDailyTable(_dailyData);
+  updatePieCharts(_shedData);
+
+  // Update period + filter labels
+  const lbl = PERIOD_LABELS[anPeriod] || '';
+  const filterLabel = shed ? ` · ${shed}` : line ? ` · Conv ${line}` : '';
+  setEl('pie-period-label', lbl + filterLabel);
+  setEl('pie-quality-label', lbl + filterLabel);
+}
+
+// ══════════════════════════════════════════════════════
+//  KPIs
+// ══════════════════════════════════════════════════════
+function renderKPIs(rows) {
+  let total = 0, good = 0, cracked = 0;
+  rows.forEach(r => {
+    total   += (r.total_eggs     || 0);
+    good    += (r.good_count     || 0);
+    cracked += (r.cracked_count  || 0);
+  });
+  const cnt = rows.length || 1;
+  setEl('kpi-total',    n(total));
+  setEl('kpi-good',     n(good));
+  setEl('kpi-cracked',  n(cracked));
+  setEl('kpi-avg-shed', n(Math.round(total / cnt)));
+  setEl('kpi-quality-pct', (total > 0 ? ((good / total) * 100).toFixed(1) : 0) + '% quality rate');
+  setEl('kpi-crack-pct',   (total > 0 ? ((cracked / total) * 100).toFixed(1) : 0) + '% defect rate');
+}
+
+// ══════════════════════════════════════════════════════
+//  SHED TABLE
+// ══════════════════════════════════════════════════════
+function renderShedTable(rows) {
+  const tb = document.getElementById('shed-tbody');
+  if (!rows.length) {
+    tb.innerHTML = '<tr><td colspan="11" class="an-no-data">No data for selected period</td></tr>';
+    return;
+  }
+  tb.innerHTML = rows.map(r => {
+    const c   = SHED_CONV[r.shed_id] || '?';
+    const cp  = parseFloat(r.crack_rate_pct || 0);
+    const col = CONV_COLORS[c] || '#888';    return `<tr>
+      <td><strong>${r.shed_id}</strong></td>
+      <td><span class="badge badge-blue" style="background:${col}20;color:${col};">Conv ${c}</span></td>
+      <td><strong>${n(r.total_eggs)}</strong></td>
+      <td>${n(r.small_count)}</td>
+      <td>${n(r.medium_count)}</td>
+      <td>${n(r.higher_medium_count)}</td>
+      <td>${n(r.big_count)}</td>
+      <td>${n(r.large_count)}</td>
+      <td style="color:var(--danger);font-weight:600;">${n(r.cracked_count)}</td>
+      <td>${badgePct(cp)}</td>
+      <td><span class="badge badge-green">${(100 - cp).toFixed(1)}%</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+//  CONVEYOR TABLE
+// ══════════════════════════════════════════════════════
+function renderConvTable(rows) {
+  const tb = document.getElementById('conveyor-tbody');
+  if (!rows.length) {
+    tb.innerHTML = '<tr><td colspan="10" class="an-no-data">No data for selected period</td></tr>';
+    return;
+  }
+  tb.innerHTML = rows.map(r => {
+    const cp  = parseFloat(r.crack_rate_pct || 0);
+    const col = CONV_COLORS[r.line_id] || '#888';
+    const sheds = (CONV_SHEDS[r.line_id] || []).join(', ');
+    return `<tr>
+      <td><strong style="color:${col};">Conveyor ${r.line_id}</strong></td>
+      <td><span style="font-size:12px;color:var(--gray);">${sheds}</span></td>
+      <td><strong>${n(r.total_eggs)}</strong></td>
+      <td>${n(r.small_count)}</td>
+      <td>${n(r.medium_count)}</td>
+      <td>${n(r.higher_medium_count)}</td>
+      <td>${n(r.big_count)}</td>
+      <td>${n(r.large_count)}</td>
+      <td style="color:var(--danger);font-weight:600;">${n(r.cracked_count)}</td>
+      <td>${badgePct(cp)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+//  PIE CHARTS
+// ══════════════════════════════════════════════════════
+function updatePieCharts(rows) {
+  let sm=0, md=0, hm=0, bg=0, lg=0, cr=0, gd=0;
+  rows.forEach(r => {
+    sm += (r.small_count          || 0);
+    md += (r.medium_count         || 0);
+    hm += (r.higher_medium_count  || 0);
+    bg += (r.big_count            || 0);
+    lg += (r.large_count          || 0);
+    cr += (r.cracked_count        || 0);
+    gd += (r.good_count           || 0);
+  });
+
+  // Size Pie
+  const sizeData = [sm, md, hm, bg, lg, cr];
+  if (chartSizePie) {
+    chartSizePie.data.datasets[0].data = sizeData;
+    chartSizePie.update();
+  } else {
+    chartSizePie = new Chart(document.getElementById('an-size-pie').getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Small','Medium','H.Medium','Big','Large','Cracked'],
+        datasets: [{
+          data: sizeData,
+          backgroundColor: ['#4caf50','#9c27b0','#00bcd4','#ff9800','#795548','#f44336'],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'right', labels: { font: { size: 12 } } } }
+      }
+    });
+  }
+
+  // Quality Pie
+  const qualData = [gd, cr];
+  if (chartQualityPie) {
+    chartQualityPie.data.datasets[0].data = qualData;
+    chartQualityPie.update();
+  } else {
+    chartQualityPie = new Chart(document.getElementById('an-quality-pie').getContext('2d'), {
+      type: 'pie',
+      data: {
+        labels: ['Good Quality', 'Cracked (Defective)'],
+        datasets: [{
+          data: qualData,
+          backgroundColor: ['#4caf50','#f44336'],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'right', labels: { font: { size: 12 } } } }
+      }
+    });
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  HOURLY TREND CHART
+// ══════════════════════════════════════════════════════
+function renderHourlyChart(data) {
+  const labels = data.map(r => (r.hour_slot || '').slice(11, 16));
+  const totals = data.map(r => r.total_eggs || 0);
+
+  if (chartHourly) {
+    chartHourly.data.labels = labels;
+    chartHourly.data.datasets[0].data = totals;
+    chartHourly.update();
+    return;
+  }
+  chartHourly = new Chart(document.getElementById('an-hourly-chart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Eggs/hour',
+        data: totals,
+        borderColor: '#4a6fa5',
+        backgroundColor: 'rgba(74,111,165,0.08)',
+        fill: true, tension: 0.4, pointRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: { y: { beginAtZero: true }, x: { title: { display: true, text: 'Hour' } } }
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  SIZE BY SHED (Stacked Bar)
+// ══════════════════════════════════════════════════════
+function renderSizeByShedException(rows) {
+  const labels = rows.map(r => r.shed_id);
+  const datasets = [
+    { label:'Small',    data: rows.map(r=>r.small_count||0),          backgroundColor:'#4caf50', borderRadius:4 },
+    { label:'Medium',   data: rows.map(r=>r.medium_count||0),         backgroundColor:'#9c27b0', borderRadius:4 },
+    { label:'H.Medium', data: rows.map(r=>r.higher_medium_count||0),  backgroundColor:'#00bcd4', borderRadius:4 },
+    { label:'Big',      data: rows.map(r=>r.big_count||0),            backgroundColor:'#ff9800', borderRadius:4 },
+    { label:'Large',    data: rows.map(r=>r.large_count||0),          backgroundColor:'#795548', borderRadius:4 },
+    { label:'Cracked',  data: rows.map(r=>r.cracked_count||0),        backgroundColor:'#f44336', borderRadius:4 }
+  ];
+
+  if (chartSizeBar) {
+    chartSizeBar.data.labels   = labels;
+    chartSizeBar.data.datasets = datasets;
+    chartSizeBar.update();
+    return;
+  }
+  chartSizeBar = new Chart(document.getElementById('an-size-chart').getContext('2d'), {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  CRACK RATE CHART
+// ══════════════════════════════════════════════════════
+function renderCrackChart(data) {
+  const sheds  = [...new Set(data.map(r => r.shed_id))].sort();
+  const rates  = sheds.map(s => {
+    const rows = data.filter(r => r.shed_id === s);
+    return (rows.reduce((a, r) => a + parseFloat(r.crack_rate_pct || 0), 0) / Math.max(rows.length, 1)).toFixed(2);
+  });
+
+  if (chartCrack) {
+    chartCrack.data.labels = sheds;
+    chartCrack.data.datasets[0].data = rates;
+    chartCrack.update();
+    return;
+  }
+  chartCrack = new Chart(document.getElementById('an-crack-chart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: sheds,
+      datasets: [{ label: 'Crack Rate (%)', data: rates, backgroundColor: 'rgba(244,67,54,0.75)', borderRadius: 5 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: { y: { beginAtZero: true, title: { display: true, text: 'Crack Rate (%)' } } }
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  SHIFT CHART  — Morning & Night only
+// ══════════════════════════════════════════════════════
+function renderShiftChart(data) {
+  const sheds   = [...new Set(data.map(r => r.shed_id))].sort();
+  const morning = sheds.map(s => data.filter(r => r.shed_id === s).reduce((a, r) => a + (r.morning || r.shift1_total || 0), 0));
+  const night   = sheds.map(s => data.filter(r => r.shed_id === s).reduce((a, r) => a + (r.night   || r.shift2_total || 0), 0));
+
+  if (chartShift) {
+    chartShift.data.labels = sheds;
+    chartShift.data.datasets[0].data = morning;
+    chartShift.data.datasets[1].data = night;
+    chartShift.update();
+    return;
+  }
+  chartShift = new Chart(document.getElementById('an-shift-chart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: sheds,
+      datasets: [
+        { label: 'Morning (07:00–14:00)', data: morning, backgroundColor: '#ffd54f', borderRadius: 4 },
+        { label: 'Night (14:00–07:00)',   data: night,   backgroundColor: '#37474f', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  DAILY TABLE
+// ══════════════════════════════════════════════════════
+function renderDailyTable(rows) {
+  setEl('an-row-count', (rows.length || 0) + ' records');
+  const tb = document.getElementById('an-daily-tbody');
+  if (!rows.length) {
+    tb.innerHTML = '<tr><td colspan="14" class="an-no-data">No records for selected period</td></tr>';
+    return;
+  }
+  tb.innerHTML = rows.map(r => {
+    const cp  = parseFloat(r.crack_rate_pct || 0);
+    const col = CONV_COLORS[r.line_id] || '#888';
+    return `<tr>
+      <td>${r.summary_date || ''}</td>
+      <td><strong>${r.shed_id || ''}</strong></td>
+      <td><span class="badge" style="background:${col}20;color:${col};">Conv ${r.line_id || ''}</span></td>
+      <td><strong>${n(r.total_eggs)}</strong></td>
+      <td>${n(r.small_count)}</td>
+      <td>${n(r.medium_count)}</td>
+      <td>${n(r.higher_medium_count)}</td>
+      <td>${n(r.big_count)}</td>
+      <td>${n(r.large_count)}</td>
+      <td style="color:var(--danger);font-weight:600;">${n(r.cracked_count)}</td>
+      <td style="color:var(--success);font-weight:600;">${n(r.good_count)}</td>
+      <td>${badgePct(cp)}</td>
+      <td>${n(r.shift1_total)}</td>
+      <td>${n(r.shift2_total)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+//  FILTER CHANGE → reload everything with new filter
+// ══════════════════════════════════════════════════════
+async function reloadHourly() {
+  await loadAnalytics();
+}
+
+// ══════════════════════════════════════════════════════
+//  EXCEL EXPORT
+// ══════════════════════════════════════════════════════
+function exportExcel() {
+  if (!_dailyData.length && !_shedData.length) {
+    showToast('No data to export. Load analytics first.', 'warning');
+    return;
+  }
+
+  const now = new Date(Date.now() + 6 * 3600000);
+  const pad = n => String(n).padStart(2, '0');
+  const ts  = `${now.getUTCFullYear()}-${pad(now.getUTCMonth()+1)}-${pad(now.getUTCDate())} ${pad(now.getUTCHours())}:${pad(now.getUTCMinutes())}`;
+
+  const selectedShed = document.getElementById('an-shed-filter')?.value || '';
+  const selectedLine = document.getElementById('an-line-filter')?.value || '';
+
+  let suffix = PERIOD_LABELS[anPeriod] || 'Report';
+  if (anPeriod === 'specific') suffix = document.getElementById('single-date').value || 'Date';
+  else if (anPeriod === 'custom') {
+    const s = document.getElementById('start-date').value;
+    const e = document.getElementById('end-date').value;
+    suffix = `${s}_to_${e}`;
+  }
+  if (selectedShed) suffix += `_${selectedShed}`;
+  else if (selectedLine) suffix += `_Conv${selectedLine}`;
+
+  const wb = XLSX.utils.book_new();
+
+  // ── Sheet 1: Summary (KPI + Shed + Conveyor একসাথে) ──
+  const rows1 = [];
+
+  // Report Header
+  rows1.push(['AI EggCounter - Analytics Report']);
+  rows1.push(['Generated (BD Time): ' + ts]);
+  rows1.push(['Period: ' + (
+    anPeriod === 'specific' ? (document.getElementById('single-date').value || 'Specific Date') :
+    anPeriod === 'custom'   ? ((document.getElementById('start-date').value||'') + ' to ' + (document.getElementById('end-date').value||'')) :
+    (PERIOD_LABELS[anPeriod] || suffix)
+  )]);
+  rows1.push(['Filter: ' + (selectedShed ? 'Shed: ' + selectedShed : selectedLine ? 'Conveyor: ' + selectedLine : 'All Sheds / All Conveyors')]);
+  rows1.push([]);
+
+  // KPI Section
+  rows1.push(['--- KEY METRICS ---']);
+  rows1.push(['METRIC', 'VALUE']);
+  rows1.push(['Total Eggs',  document.getElementById('kpi-total')?.innerText    || '0']);
+  rows1.push(['Good Eggs',   document.getElementById('kpi-good')?.innerText     || '0']);
+  rows1.push(['Cracked',     document.getElementById('kpi-cracked')?.innerText  || '0']);
+  rows1.push(['Avg / Shed',  document.getElementById('kpi-avg-shed')?.innerText || '0']);
+  rows1.push([]);
+
+  // Shed Summary Section
+  if (_shedData.length) {
+    rows1.push(['--- SHED SUMMARY ---']);
+    rows1.push(['Shed','Conveyor','Total Eggs','Small','Medium','H.Medium','Big','Large','Cracked','Good Eggs','Crack %','Quality %']);
+    _shedData.forEach(r => {
+      const cp = parseFloat(r.crack_rate_pct||0);
+      rows1.push([
+        r.shed_id,
+        'Conveyor ' + (SHED_CONV[r.shed_id]||'?'),
+        r.total_eggs||0,
+        r.small_count||0, r.medium_count||0, r.higher_medium_count||0,
+        r.big_count||0, r.large_count||0,
+        r.cracked_count||0, r.good_count||0,
+        parseFloat(cp.toFixed(2)),
+        parseFloat((100-cp).toFixed(2))
+      ]);
+    });
+    // Shed Grand Total
+    const st = _shedData.reduce((a,r) => ({
+      t: a.t+(r.total_eggs||0), sm: a.sm+(r.small_count||0),
+      md: a.md+(r.medium_count||0), hm: a.hm+(r.higher_medium_count||0),
+      bg: a.bg+(r.big_count||0), lg: a.lg+(r.large_count||0),
+      cr: a.cr+(r.cracked_count||0), gd: a.gd+(r.good_count||0)
+    }), {t:0,sm:0,md:0,hm:0,bg:0,lg:0,cr:0,gd:0});
+    const scp = st.t > 0 ? parseFloat(((st.cr/st.t)*100).toFixed(2)) : 0;
+    rows1.push(['TOTAL', '', st.t, st.sm, st.md, st.hm, st.bg, st.lg, st.cr, st.gd, scp, parseFloat((100-scp).toFixed(2))]);
+    rows1.push([]);
+  }
+
+  // Conveyor Summary Section
+  if (_convData.length) {
+    rows1.push(['--- CONVEYOR SUMMARY ---']);
+    rows1.push(['Conveyor','Sheds','Total Eggs','Small','Medium','H.Medium','Big','Large','Cracked','Good Eggs','Crack %','Quality %']);
+    _convData.forEach(r => {
+      const cp = parseFloat(r.crack_rate_pct||0);
+      rows1.push([
+        'Conveyor ' + r.line_id,
+        (CONV_SHEDS[r.line_id]||[]).join(', '),
+        r.total_eggs||0,
+        r.small_count||0, r.medium_count||0, r.higher_medium_count||0,
+        r.big_count||0, r.large_count||0,
+        r.cracked_count||0, r.good_count||0,
+        parseFloat(cp.toFixed(2)),
+        parseFloat((100-cp).toFixed(2))
+      ]);
+    });
+    // Conveyor Grand Total
+    const ct = _convData.reduce((a,r) => ({
+      t: a.t+(r.total_eggs||0), sm: a.sm+(r.small_count||0),
+      md: a.md+(r.medium_count||0), hm: a.hm+(r.higher_medium_count||0),
+      bg: a.bg+(r.big_count||0), lg: a.lg+(r.large_count||0),
+      cr: a.cr+(r.cracked_count||0), gd: a.gd+(r.good_count||0)
+    }), {t:0,sm:0,md:0,hm:0,bg:0,lg:0,cr:0,gd:0});
+    const ccp = ct.t > 0 ? parseFloat(((ct.cr/ct.t)*100).toFixed(2)) : 0;
+    rows1.push(['TOTAL', 'All Conveyors', ct.t, ct.sm, ct.md, ct.hm, ct.bg, ct.lg, ct.cr, ct.gd, ccp, parseFloat((100-ccp).toFixed(2))]);
+  }
+
+  const wsInfo = XLSX.utils.aoa_to_sheet(rows1);
+  wsInfo['!cols'] = [20,28,12,8,10,12,8,8,10,12,10,10].map(wch => ({ wch }));
+  XLSX.utils.book_append_sheet(wb, wsInfo, 'Summary');
+  if (_shedData.length) {
+    const rows = [
+      ['Shed','Conveyor','Total Eggs','Small','Medium','H.Medium','Big','Large','Standard(Old)',
+       'Cracked','Good Eggs','Crack %','Quality %'],
+      ..._shedData.map(r => {
+        const cp = parseFloat(r.crack_rate_pct||0);
+        return [
+          r.shed_id,
+          `Conveyor ${SHED_CONV[r.shed_id] || '?'}`,
+          r.total_eggs||0,
+          r.small_count||0,
+          r.medium_count||0,
+          r.higher_medium_count||0,
+          r.big_count||0,
+          r.large_count||0,
+          r.standard_count||0,
+          r.cracked_count||0,
+          r.good_count||0,
+          parseFloat(cp.toFixed(2)),
+          parseFloat((100 - cp).toFixed(2))
+        ];
+      })
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [10,14,12,8,10,12,8,8,14,10,12,10,10].map(wch => ({ wch }));
+    XLSX.utils.book_append_sheet(wb, ws, 'Shed Summary');
+  }
+
+  // ── Sheet 3: Conveyor Summary (with extra columns) ──
+  if (_convData.length) {
+    const rows = [
+      ['Conveyor','Sheds','Total Eggs','Small','Medium','H.Medium','Big','Large',
+       'Cracked','Good Eggs','Crack %','Quality %'],
+      ..._convData.map(r => {
+        const cp = parseFloat(r.crack_rate_pct||0);
+        return [
+          `Conveyor ${r.line_id}`,
+          (CONV_SHEDS[r.line_id] || []).join(', '),
+          r.total_eggs||0,
+          r.small_count||0,
+          r.medium_count||0,
+          r.higher_medium_count||0,
+          r.big_count||0,
+          r.large_count||0,
+          r.cracked_count||0,
+          r.good_count||0,
+          parseFloat(cp.toFixed(2)),
+          parseFloat((100 - cp).toFixed(2))
+        ];
+      })
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [14,26,12,8,10,12,8,8,10,12,10,10].map(wch => ({ wch }));
+    XLSX.utils.book_append_sheet(wb, ws, 'Conveyor Summary');
+  }
+
+  // ── Sheet 4: Daily Detail — Shed Summary + Conveyor Summary + Daily Records ──
+  if (_dailyData.length || _shedData.length || _convData.length) {
+    const rows = [];
+
+    // ── Section A: Shed Summary ──────────────────────
+    if (_shedData.length) {
+      rows.push(['=== SHED SUMMARY ===']);
+      rows.push(['Shed','Conveyor','Total Eggs','Small','Medium','H.Medium','Big','Large',
+                 'Standard(Old)','Cracked','Good Eggs','Crack %','Quality %']);
+      _shedData.forEach(r => {
+        const cp = parseFloat(r.crack_rate_pct||0);
+        rows.push([
+          r.shed_id,
+          'Conveyor ' + (SHED_CONV[r.shed_id]||'?'),
+          r.total_eggs||0,
+          r.small_count||0,
+          r.medium_count||0,
+          r.higher_medium_count||0,
+          r.big_count||0,
+          r.large_count||0,
+          r.standard_count||0,
+          r.cracked_count||0,
+          r.good_count||0,
+          parseFloat(cp.toFixed(2)),
+          parseFloat((100-cp).toFixed(2))
+        ]);
+      });
+
+      // Shed Grand Total row
+      const st = _shedData.reduce((a,r) => ({
+        total:   a.total   + (r.total_eggs||0),
+        small:   a.small   + (r.small_count||0),
+        medium:  a.medium  + (r.medium_count||0),
+        hm:      a.hm      + (r.higher_medium_count||0),
+        big:     a.big     + (r.big_count||0),
+        large:   a.large   + (r.large_count||0),
+        std:     a.std     + (r.standard_count||0),
+        cracked: a.cracked + (r.cracked_count||0),
+        good:    a.good    + (r.good_count||0),
+      }), {total:0,small:0,medium:0,hm:0,big:0,large:0,std:0,cracked:0,good:0});
+      const stCp = st.total > 0 ? parseFloat(((st.cracked/st.total)*100).toFixed(2)) : 0;
+      rows.push([
+        'GRAND TOTAL', '',
+        st.total, st.small, st.medium, st.hm, st.big, st.large,
+        st.std, st.cracked, st.good, stCp, parseFloat((100-stCp).toFixed(2))
+      ]);
+
+      rows.push([]); // blank spacer
+    }
+
+    // ── Section B: Conveyor Summary ─────────────────
+    if (_convData.length) {
+      rows.push(['=== CONVEYOR SUMMARY ===']);
+      rows.push(['Conveyor','Sheds','Total Eggs','Small','Medium','H.Medium','Big','Large',
+                 'Cracked','Good Eggs','Crack %','Quality %']);
+      _convData.forEach(r => {
+        const cp = parseFloat(r.crack_rate_pct||0);
+        rows.push([
+          'Conveyor ' + r.line_id,
+          (CONV_SHEDS[r.line_id]||[]).join(', '),
+          r.total_eggs||0,
+          r.small_count||0,
+          r.medium_count||0,
+          r.higher_medium_count||0,
+          r.big_count||0,
+          r.large_count||0,
+          r.cracked_count||0,
+          r.good_count||0,
+          parseFloat(cp.toFixed(2)),
+          parseFloat((100-cp).toFixed(2))
+        ]);
+      });
+
+      // Conveyor Grand Total row
+      const ct = _convData.reduce((a,r) => ({
+        total:   a.total   + (r.total_eggs||0),
+        small:   a.small   + (r.small_count||0),
+        medium:  a.medium  + (r.medium_count||0),
+        hm:      a.hm      + (r.higher_medium_count||0),
+        big:     a.big     + (r.big_count||0),
+        large:   a.large   + (r.large_count||0),
+        cracked: a.cracked + (r.cracked_count||0),
+        good:    a.good    + (r.good_count||0),
+      }), {total:0,small:0,medium:0,hm:0,big:0,large:0,cracked:0,good:0});
+      const ctCp = ct.total > 0 ? parseFloat(((ct.cracked/ct.total)*100).toFixed(2)) : 0;
+      rows.push([
+        'GRAND TOTAL', 'All Conveyors',
+        ct.total, ct.small, ct.medium, ct.hm, ct.big, ct.large,
+        ct.cracked, ct.good, ctCp, parseFloat((100-ctCp).toFixed(2))
+      ]);
+
+      rows.push([]); // blank spacer
+    }
+
+    // ── Section C: Daily Detail Records ─────────────
+    if (_dailyData.length) {
+      rows.push(['=== DAILY DETAIL RECORDS ===']);
+      rows.push(['Date','Shed','Conveyor','Total Eggs','Small','Medium','H.Medium','Big','Large',
+                 'Cracked','Good Eggs','Crack %','Quality %','Morning','Night']);
+      _dailyData.forEach(r => {
+        const cp = parseFloat(r.crack_rate_pct||0);
+        rows.push([
+          r.summary_date||'',
+          r.shed_id||'',
+          'Conveyor ' + (r.line_id||''),
+          r.total_eggs||0,
+          r.small_count||0,
+          r.medium_count||0,
+          r.higher_medium_count||0,
+          r.big_count||0,
+          r.large_count||0,
+          r.cracked_count||0,
+          r.good_count||0,
+          parseFloat(cp.toFixed(2)),
+          parseFloat((100-cp).toFixed(2)),
+          r.shift1_total||0,
+          r.shift2_total||0
+        ]);
+      });
+    }
+
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [14,28,12,8,10,12,8,8,14,10,12,10,10,10,10].map(wch => ({ wch }));
+    XLSX.utils.book_append_sheet(wb, ws, 'Full Report');
+  }
+
+  const fileName = `Egg_Analytics_${suffix.replace(/\s+/g,'_')}.xlsx`;
+  XLSX.writeFile(wb, fileName);
+  showToast(`✅ Excel downloaded: ${fileName}`, 'success');
+}
+
+// ══════════════════════════════════════════════════════
+//  PDF EXPORT — Charts + Tables
+// ══════════════════════════════════════════════════════
+async function exportPDF() {
+  if (!_shedData.length && !_dailyData.length) {
+    showToast('No data to export. Load analytics first.', 'warning');
+    return;
+  }
+  showToast('Generating PDF, please wait...', 'info');
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  const MARGIN = 12;
+
+  const now = new Date(Date.now() + 6 * 3600000);
+  const pad = x => String(x).padStart(2,'0');
+  const tsStr = `${now.getUTCFullYear()}-${pad(now.getUTCMonth()+1)}-${pad(now.getUTCDate())} ${pad(now.getUTCHours())}:${pad(now.getUTCMinutes())}`;
+  const selectedShed = document.getElementById('an-shed-filter')?.value || '';
+  const selectedLine = document.getElementById('an-line-filter')?.value || '';
+
+  // ── Build actual period label with real dates ──
+  let periodLabel = PERIOD_LABELS[anPeriod] || 'Report';
+  if (anPeriod === 'specific') {
+    const d = document.getElementById('single-date')?.value || '';
+    periodLabel = d ? 'Date: ' + d : 'Specific Date';
+  } else if (anPeriod === 'custom') {
+    const s = document.getElementById('start-date')?.value || '';
+    const e = document.getElementById('end-date')?.value || '';
+    periodLabel = (s && e) ? s + ' to ' + e : 'Custom Range';
+  }
+
+  // ── Build filter label ──
+  const filterLabel = selectedShed
+    ? 'Shed: ' + selectedShed
+    : selectedLine
+    ? 'Conveyor ' + selectedLine + ' (' + (CONV_SHEDS[parseInt(selectedLine)] || []).join(', ') + ')'
+    : 'All Sheds / All Conveyors';
+
+  const total   = document.getElementById('kpi-total')?.innerText    || '0';
+  const good    = document.getElementById('kpi-good')?.innerText     || '0';
+  const cracked = document.getElementById('kpi-cracked')?.innerText  || '0';
+  const avgShed = document.getElementById('kpi-avg-shed')?.innerText || '0';
+
+  let pageNum = 1;
+
+  // ── Helpers ────────────────────────────────────────────
+  function drawPageHeader(sectionTitle) {
+    // Blue top band
+    doc.setFillColor(74, 111, 165);
+    doc.rect(0, 0, W, 20, 'F');
+
+    // App title (left)
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(255, 255, 255);
+    doc.text('AI EggCounter - Analytics Report', MARGIN, 9);
+
+    // Meta (right)
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text('Period: ' + periodLabel + '  |  Filter: ' + filterLabel, W - MARGIN, 9, { align: 'right' });
+    doc.text('Generated: ' + tsStr + ' (BD Time)', W - MARGIN, 16, { align: 'right' });
+
+    // Section sub-title
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(40, 40, 40);
+    doc.text(sectionTitle, MARGIN, 28);
+    doc.setDrawColor(180, 180, 180);
+    doc.setLineWidth(0.3);
+    doc.line(MARGIN, 30, W - MARGIN, 30);
+  }
+
+  function drawPageFooter() {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(150, 150, 150);
+    doc.text(
+      '(c) 2026 EggTrack AI - PRAN-RFL Solutions  |  Page ' + pageNum,
+      W / 2, H - 4, { align: 'center' }
+    );
+  }
+
+  function drawKPIBox(x, y, bw, label, value, sub, rgb) {
+    doc.setFillColor(248, 249, 250);
+    doc.roundedRect(x, y, bw, 22, 2, 2, 'F');
+    // left color bar
+    doc.setFillColor(rgb[0], rgb[1], rgb[2]);
+    doc.rect(x, y, 2, 22, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(110, 110, 110);
+    doc.text(label.toUpperCase(), x + 5, y + 7);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(30, 30, 30);
+    doc.text(String(value), x + 5, y + 17);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(6.5);
+    doc.setTextColor(150, 150, 150);
+    doc.text(sub, x + 5, y + 21.5);
+  }
+
+  function canvasImg(id) {
+    const c = document.getElementById(id);
+    return c ? c.toDataURL('image/png') : null;
+  }
+
+  // ══════════════════════════════════════════════════════
+  //  PAGE 1 — Summary KPIs + Pie Charts
+  // ══════════════════════════════════════════════════════
+  drawPageHeader('Production Overview & Quality Summary');
+  drawPageFooter();
+
+  const kpiW = (W - MARGIN * 2 - 9) / 4;
+  drawKPIBox(MARGIN,            34, kpiW, 'Total Eggs',  total,   'All conveyors combined', [74, 111, 165]);
+  drawKPIBox(MARGIN + kpiW + 3, 34, kpiW, 'Good Eggs',   good,    'Quality eggs',           [76, 175, 80]);
+  drawKPIBox(MARGIN + kpiW*2+6, 34, kpiW, 'Cracked',     cracked, 'Defective eggs',         [244, 67, 54]);
+  drawKPIBox(MARGIN + kpiW*3+9, 34, kpiW, 'Avg / Shed',  avgShed, 'Average per shed',       [255, 152, 0]);
+
+  // Pie charts
+  const pieY = 60, pieH = 88;
+  const pieW = (W - MARGIN * 2 - 8) / 2;
+  const sizePieImg    = canvasImg('an-size-pie');
+  const qualityPieImg = canvasImg('an-quality-pie');
+
+  if (sizePieImg) {
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(50, 50, 50);
+    doc.text('Egg Size Distribution', MARGIN, pieY - 2);
+    doc.addImage(sizePieImg, 'PNG', MARGIN, pieY, pieW, pieH);
+  }
+  if (qualityPieImg) {
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(50, 50, 50);
+    doc.text('Quality Status (Good vs Cracked)', MARGIN + pieW + 8, pieY - 2);
+    doc.addImage(qualityPieImg, 'PNG', MARGIN + pieW + 8, pieY, pieW, pieH);
+  }
+
+  // ══════════════════════════════════════════════════════
+  //  PAGE 2 — Hourly Trend + Size by Shed
+  // ══════════════════════════════════════════════════════
+  pageNum++; doc.addPage();
+  drawPageHeader('Hourly Production Trend & Size Breakdown by Shed');
+  drawPageFooter();
+
+  const cH = 82, cW = (W - MARGIN * 2 - 8) / 2;
+  const hourlyImg = canvasImg('an-hourly-chart');
+  const sizeImg   = canvasImg('an-size-chart');
+
+  if (hourlyImg) {
+    doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(50,50,50);
+    doc.text('Hourly Production Trend', MARGIN, 35);
+    doc.addImage(hourlyImg, 'PNG', MARGIN, 37, cW, cH);
+  }
+  if (sizeImg) {
+    doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(50,50,50);
+    doc.text('Size Distribution by Shed', MARGIN + cW + 8, 35);
+    doc.addImage(sizeImg, 'PNG', MARGIN + cW + 8, 37, cW, cH);
+  }
+
+  // ══════════════════════════════════════════════════════
+  //  PAGE 3 — Crack Rate + Shift Charts
+  // ══════════════════════════════════════════════════════
+  pageNum++; doc.addPage();
+  drawPageHeader('Crack Rate Analysis & Shift-wise Breakdown');
+  drawPageFooter();
+
+  const crackImg = canvasImg('an-crack-chart');
+  const shiftImg = canvasImg('an-shift-chart');
+
+  if (crackImg) {
+    doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(50,50,50);
+    doc.text('Crack Rate by Shed (%)', MARGIN, 35);
+    doc.addImage(crackImg, 'PNG', MARGIN, 37, cW, cH);
+  }
+  if (shiftImg) {
+    doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(50,50,50);
+    doc.text('Shift Breakdown - Morning vs Night', MARGIN + cW + 8, 35);
+    doc.addImage(shiftImg, 'PNG', MARGIN + cW + 8, 37, cW, cH);
+  }
+
+  // ══════════════════════════════════════════════════════
+  //  PAGE 4 — Shed-wise Table
+  // ══════════════════════════════════════════════════════
+  if (_shedData.length) {
+    pageNum++; doc.addPage();
+    drawPageHeader('Shed-wise Production Report');
+    drawPageFooter();
+
+    doc.autoTable({
+      startY: 33,
+      margin: { left: MARGIN, right: MARGIN },
+      head: [[
+        'Shed', 'Conveyor', 'Total Eggs',
+        'Small', 'Medium', 'H.Medium', 'Big', 'Large',
+        'Cracked', 'Good Eggs', 'Crack %', 'Quality %'
+      ]],
+      body: _shedData.map(r => {
+        const cp = parseFloat(r.crack_rate_pct || 0);
+        return [
+          r.shed_id || '-',
+          'Conv ' + (SHED_CONV[r.shed_id] || '?'),
+          (r.total_eggs || 0).toLocaleString(),
+          (r.small_count || 0).toLocaleString(),
+          (r.medium_count || 0).toLocaleString(),
+          (r.higher_medium_count || 0).toLocaleString(),
+          (r.big_count || 0).toLocaleString(),
+          (r.large_count || 0).toLocaleString(),
+          (r.cracked_count || 0).toLocaleString(),
+          (r.good_count || 0).toLocaleString(),
+          cp.toFixed(1) + '%',
+          (100 - cp).toFixed(1) + '%'
+        ];
+      }),
+      headStyles: { fillColor: [74,111,165], textColor: 255, fontStyle: 'bold', fontSize: 8 },
+      bodyStyles: { fontSize: 8, textColor: [40,40,40] },
+      alternateRowStyles: { fillColor: [245,247,252] },
+      columnStyles: {
+        0: { fontStyle: 'bold', cellWidth: 18 },
+        1: { cellWidth: 20 },
+        8: { textColor: [210,45,45] },
+        10: { textColor: [210,45,45] },
+        11: { textColor: [45,155,45] }
+      },
+      didDrawPage: () => drawPageFooter()
+    });
+  }
+
+  // ══════════════════════════════════════════════════════
+  //  PAGE 5 — Conveyor-wise Table
+  // ══════════════════════════════════════════════════════
+  if (_convData.length) {
+    pageNum++; doc.addPage();
+    drawPageHeader('Conveyor-wise Production Report');
+    drawPageFooter();
+
+    doc.autoTable({
+      startY: 33,
+      margin: { left: MARGIN, right: MARGIN },
+      head: [[
+        'Conveyor', 'Sheds', 'Total Eggs',
+        'Small', 'Medium', 'H.Medium', 'Big', 'Large',
+        'Cracked', 'Good Eggs', 'Crack %', 'Quality %'
+      ]],
+      body: _convData.map(r => {
+        const cp = parseFloat(r.crack_rate_pct || 0);
+        return [
+          'Conveyor ' + r.line_id,
+          (CONV_SHEDS[r.line_id] || []).join(', '),
+          (r.total_eggs || 0).toLocaleString(),
+          (r.small_count || 0).toLocaleString(),
+          (r.medium_count || 0).toLocaleString(),
+          (r.higher_medium_count || 0).toLocaleString(),
+          (r.big_count || 0).toLocaleString(),
+          (r.large_count || 0).toLocaleString(),
+          (r.cracked_count || 0).toLocaleString(),
+          (r.good_count || 0).toLocaleString(),
+          cp.toFixed(1) + '%',
+          (100 - cp).toFixed(1) + '%'
+        ];
+      }),
+      headStyles: { fillColor: [230,120,0], textColor: 255, fontStyle: 'bold', fontSize: 8 },
+      bodyStyles: { fontSize: 8, textColor: [40,40,40] },
+      alternateRowStyles: { fillColor: [255,248,240] },
+      columnStyles: {
+        0: { fontStyle: 'bold', cellWidth: 24 },
+        1: { cellWidth: 48 },
+        8: { textColor: [210,45,45] },
+        10: { textColor: [210,45,45] },
+        11: { textColor: [45,155,45] }
+      },
+      didDrawPage: () => drawPageFooter()
+    });
+  }
+
+  // ══════════════════════════════════════════════════════
+  //  PAGE 6+ — Daily Detail Table (all records)
+  // ══════════════════════════════════════════════════════
+  if (_dailyData.length) {
+    pageNum++; doc.addPage();
+    drawPageHeader('Daily Detail Report - All Records (' + _dailyData.length + ' rows)');
+    drawPageFooter();
+
+    doc.autoTable({
+      startY: 33,
+      margin: { left: MARGIN, right: MARGIN },
+      head: [[
+        'Date', 'Shed', 'Conv', 'Total',
+        'Small', 'Medium', 'H.Mid', 'Big', 'Large',
+        'Cracked', 'Good', 'Crack %', 'Quality %', 'Morning', 'Night'
+      ]],
+      body: _dailyData.map(r => {
+        const cp = parseFloat(r.crack_rate_pct || 0);
+        return [
+          r.summary_date || '',
+          r.shed_id || '',
+          'C' + (r.line_id || ''),
+          (r.total_eggs || 0).toLocaleString(),
+          (r.small_count || 0).toLocaleString(),
+          (r.medium_count || 0).toLocaleString(),
+          (r.higher_medium_count || 0).toLocaleString(),
+          (r.big_count || 0).toLocaleString(),
+          (r.large_count || 0).toLocaleString(),
+          (r.cracked_count || 0).toLocaleString(),
+          (r.good_count || 0).toLocaleString(),
+          cp.toFixed(1) + '%',
+          (100 - cp).toFixed(1) + '%',
+          (r.shift1_total || 0).toLocaleString(),
+          (r.shift2_total || 0).toLocaleString()
+        ];
+      }),
+      headStyles: { fillColor: [45,55,65], textColor: 255, fontStyle: 'bold', fontSize: 7.5 },
+      bodyStyles: { fontSize: 7.5, textColor: [40,40,40] },
+      alternateRowStyles: { fillColor: [248,248,248] },
+      columnStyles: {
+        0: { cellWidth: 22 },
+        1: { fontStyle: 'bold', cellWidth: 16 },
+        2: { cellWidth: 10 },
+        9: { textColor: [210,45,45] },
+        11: { textColor: [210,45,45] },
+        12: { textColor: [45,155,45] }
+      },
+      didDrawPage: () => { pageNum++; drawPageFooter(); }
+    });
+  }
+
+  // ── Save ───────────────────────────────────────────────
+  const sfx = selectedShed ? '_' + selectedShed : selectedLine ? '_Conv' + selectedLine : '';
+  const pdfName = 'Egg_Analytics_' + periodLabel.replace(/\s+/g,'_') + sfx + '.pdf';
+  doc.save(pdfName);
+  showToast('PDF downloaded: ' + pdfName, 'success');
+}
+
+// ══════════════════════════════════════════════════════
+//  PERIOD TABS
+// ══════════════════════════════════════════════════════
+document.querySelectorAll('.period-tab').forEach(btn => {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    anPeriod = this.dataset.period;
+
+    const specificEl = document.getElementById('specific-date-filter');
+    const customEl   = document.getElementById('custom-date-filter');
+
+    specificEl.classList.remove('visible');
+    customEl.classList.remove('visible');
+
+    if (anPeriod === 'specific') {
+      specificEl.classList.add('visible');
+    } else if (anPeriod === 'custom') {
+      customEl.classList.add('visible');
+    } else {
+      loadAnalytics();
+    }
+  });
+});
+
+document.getElementById('apply-specific').addEventListener('click', loadAnalytics);
+document.getElementById('apply-custom').addEventListener('click', loadAnalytics);
+document.getElementById('export-xlsx-btn').addEventListener('click', exportExcel);
+document.getElementById('export-pdf-btn').addEventListener('click', exportPDF);
+document.getElementById('an-shed-filter').addEventListener('change', reloadHourly);
+document.getElementById('an-line-filter').addEventListener('change', reloadHourly);
+
+// ── Auto-load on page open ──
+window.addEventListener('DOMContentLoaded', () => {
+  loadAnalytics();
+});
+</script>
+
+</body>
+</html>

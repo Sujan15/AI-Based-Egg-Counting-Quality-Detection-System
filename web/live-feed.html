@@ -1,0 +1,429 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Feed | AI Egg Counting & Grading System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/live-feed.css" />
+  <script src="js/app.js" defer></script>
+  <script src="js/webrtc.js" defer></script>
+</head>
+<body class="page-live-feed">
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <div class="logo-icon">
+            <i class="fas fa-egg"></i>
+          </div>
+          <div class="logo-text">AI Egg<span>Counter</span></div>
+        </div>
+        <nav>
+          <a href="index.html">Dashboard</a>
+          <a href="live-feed.html">Live Feed</a>
+          <a href="analytics.html">Analytics</a>
+          <a href="settings.html">Settings</a>
+        </nav>
+        <div class="user-info">
+          <div class="notification-icon">
+            <i class="fas fa-bell"></i>
+            <div class="notification-badge">0</div>
+          </div>
+          <div class="user-avatar">OP</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="container" id="live-feed-page">
+      <div class="live-feed-header">
+        <div>
+          <h1 class="dashboard-title">Live Conveyor Feed</h1>
+          <p class="dashboard-subtitle">AI Egg Monitoring</p>
+        </div>
+        <div class="controls">
+          <div class="view-controls">
+            <button class="view-btn active" data-view="grid">
+              <i class="fas fa-th-large"></i> Grid View
+            </button>
+            <button class="view-btn" data-view="single">
+              <i class="fas fa-expand"></i> Single View
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="camera-grid" id="camera-grid">
+        <div class="camera-card" id="card-1">
+          <div class="camera-header">
+            <div class="camera-title"><i class="fas fa-video"></i> <span id="line1-name">Conveyor Line 1</span></div>
+            <div class="camera-status"><span class="status-indicator active"></span><span>Live</span></div>
+          </div>
+          <div class="camera-feed" id="camera-feed-1">
+            <video id="video-1" autoplay playsinline></video>
+          </div>
+          <div class="camera-stats">
+            <div class="stat-item">
+              <div class="stat-value" id="line1-count">0</div>
+              <div class="stat-label">Total Count</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="line1-quality">100%</div>
+              <div class="stat-label">Quality Rate</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="line1-defects">0%</div>
+              <div class="stat-label">Defect Rate</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="camera-card" id="card-2">
+          <div class="camera-header">
+            <div class="camera-title"><i class="fas fa-video"></i> <span id="line2-name">Conveyor Line 2</span></div>
+            <div class="camera-status"><span class="status-indicator active"></span><span>Live</span></div>
+          </div>
+          <div class="camera-feed" id="camera-feed-2">
+            <video id="video-2" autoplay playsinline></video>
+          </div>
+          <div class="camera-stats">
+            <div class="stat-item">
+              <div class="stat-value" id="line2-count">0</div>
+              <div class="stat-label">Total Count</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="line2-quality">100%</div>
+              <div class="stat-label">Quality Rate</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="line2-defects">0%</div>
+              <div class="stat-label">Defect Rate</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="camera-card" id="card-3">
+          <div class="camera-header">
+            <div class="camera-title"><i class="fas fa-video"></i> <span id="line3-name">Conveyor Line 3</span></div>
+            <div class="camera-status"><span class="status-indicator active"></span><span>Live</span></div>
+          </div>
+          <div class="camera-feed" id="camera-feed-3">
+            <video id="video-3" autoplay playsinline></video>
+          </div>
+          <div class="camera-stats">
+            <div class="stat-item">
+              <div class="stat-value" id="line3-count">0</div>
+              <div class="stat-label">Total Count</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="line3-quality">100%</div>
+              <div class="stat-label">Quality Rate</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="line3-defects">0%</div>
+              <div class="stat-label">Defect Rate</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="camera-card" id="card-4">
+          <div class="camera-header">
+            <div class="camera-title"><i class="fas fa-video"></i> <span id="line4-name">Conveyor Line 4</span></div>
+            <div class="camera-status"><span class="status-indicator active"></span><span>Live</span></div>
+          </div>
+          <div class="camera-feed" id="camera-feed-4">
+            <video id="video-4" autoplay playsinline></video>
+          </div>
+          <div class="camera-stats">
+            <div class="stat-item">
+              <div class="stat-value" id="line4-count">0</div>
+              <div class="stat-label">Total Count</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="line4-quality">100%</div>
+              <div class="stat-label">Quality Rate</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="line4-defects">0%</div>
+              <div class="stat-label">Defect Rate</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="single-view-overlay" role="dialog" aria-modal="true" aria-label="Single line view">
+      <div id="sv-header">
+        <div id="sv-title">
+          <i class="fas fa-video"></i>
+          <span id="sv-line-name">Conveyor Line 1</span>
+          <span class="status-indicator active sv-live-indicator"></span>
+          <span class="sv-live-text">Live</span>
+        </div>
+        <button id="sv-close" title="Close (Esc)"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="sv-body">
+        <button class="sv-nav-btn" id="sv-prev" title="Previous line"><i class="fas fa-chevron-left"></i></button>
+        <video id="sv-video" autoplay playsinline muted></video>
+        <button class="sv-nav-btn" id="sv-next" title="Next line"><i class="fas fa-chevron-right"></i></button>
+      </div>
+      <div id="sv-footer">
+        <div class="sv-stat"><span class="sv-stat-val" id="sv-count">0</span><span class="sv-stat-lbl">Total Count</span></div>
+        <div class="sv-stat"><span class="sv-stat-val" id="sv-quality">100%</span><span class="sv-stat-lbl">Quality Rate</span></div>
+        <div class="sv-stat"><span class="sv-stat-val" id="sv-defects">0%</span><span class="sv-stat-lbl">Defect Rate</span></div>
+      </div>
+      <div id="sv-dots"></div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">AI Egg Counting & Quality Grading System</div>
+        <div class="system-version">Version 1.0.0 | Last Updated: April 11, 2026</div>
+      </div>
+      <div class="copyright">
+        &copy; 2026 EggTrack AI - PRAN-RFL Solutions. All rights reserved | Contact: sujanprangroup@gmail.com.
+      </div>
+    </div>
+  </footer>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Feed | AI Egg Counting & Grading System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/live-feed.css" />
+  <script src="js/app.js" defer></script>
+  <script src="js/webrtc.js" defer></script>
+</head>
+<body class="page-live-feed">
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <div class="logo-icon">
+            <i class="fas fa-egg"></i>
+          </div>
+          <div class="logo-text">AI Egg<span>Counter</span></div>
+        </div>
+        <nav>
+          <a href="index.html">Dashboard</a>
+          <a href="live-feed.html">Live Feed</a>
+          <a href="analytics.html">Analytics</a>
+          <a href="settings.html">Settings</a>
+        </nav>
+        <div class="user-info">
+          <div class="notification-icon">
+            <i class="fas fa-bell"></i>
+            <div class="notification-badge">0</div>
+          </div>
+          <div class="user-avatar">OP</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="container" id="live-feed-page">
+      <div class="live-feed-header">
+        <div>
+          <h1 class="dashboard-title">Live Conveyor Feed</h1>
+          <p class="dashboard-subtitle">AI Egg Monitoring — toggle each camera independently to save resources</p>
+        </div>
+        <div class="controls">
+          <div class="view-controls">
+            <button class="view-btn active" data-view="grid">
+              <i class="fas fa-th-large"></i> Grid View
+            </button>
+            <button class="view-btn" data-view="single">
+              <i class="fas fa-expand"></i> Single View
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="camera-grid" id="camera-grid">
+
+        <!-- Camera Card 1 -->
+        <div class="camera-card" id="card-1">
+          <div class="camera-header">
+            <div class="camera-title"><i class="fas fa-video"></i> <span id="line1-name">Conveyor Line 1</span></div>
+            <div class="camera-header-right">
+              <div class="camera-status"><span class="status-indicator active"></span><span>Live</span></div>
+              <button id="stream-toggle-1" class="stream-toggle-btn stream-off" title="Toggle stream">
+                <i class="fas fa-play-circle"></i> Paused
+              </button>
+            </div>
+          </div>
+          <div class="camera-feed" id="camera-feed-1">
+            <video id="video-1" autoplay playsinline></video>
+          </div>
+          <div class="camera-stats">
+            <div class="stat-item">
+              <div class="stat-value" id="line1-count">0</div>
+              <div class="stat-label">Total Count</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="line1-quality">100%</div>
+              <div class="stat-label">Quality Rate</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="line1-defects">0%</div>
+              <div class="stat-label">Defect Rate</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Camera Card 2 -->
+        <div class="camera-card" id="card-2">
+          <div class="camera-header">
+            <div class="camera-title"><i class="fas fa-video"></i> <span id="line2-name">Conveyor Line 2</span></div>
+            <div class="camera-header-right">
+              <div class="camera-status"><span class="status-indicator active"></span><span>Live</span></div>
+              <button id="stream-toggle-2" class="stream-toggle-btn stream-off" title="Toggle stream">
+                <i class="fas fa-play-circle"></i> Paused
+              </button>
+            </div>
+          </div>
+          <div class="camera-feed" id="camera-feed-2">
+            <video id="video-2" autoplay playsinline></video>
+          </div>
+          <div class="camera-stats">
+            <div class="stat-item">
+              <div class="stat-value" id="line2-count">0</div>
+              <div class="stat-label">Total Count</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="line2-quality">100%</div>
+              <div class="stat-label">Quality Rate</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="line2-defects">0%</div>
+              <div class="stat-label">Defect Rate</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Camera Card 3 -->
+        <div class="camera-card" id="card-3">
+          <div class="camera-header">
+            <div class="camera-title"><i class="fas fa-video"></i> <span id="line3-name">Conveyor Line 3</span></div>
+            <div class="camera-header-right">
+              <div class="camera-status"><span class="status-indicator active"></span><span>Live</span></div>
+              <button id="stream-toggle-3" class="stream-toggle-btn stream-off" title="Toggle stream">
+                <i class="fas fa-play-circle"></i> Paused
+              </button>
+            </div>
+          </div>
+          <div class="camera-feed" id="camera-feed-3">
+            <video id="video-3" autoplay playsinline></video>
+          </div>
+          <div class="camera-stats">
+            <div class="stat-item">
+              <div class="stat-value" id="line3-count">0</div>
+              <div class="stat-label">Total Count</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="line3-quality">100%</div>
+              <div class="stat-label">Quality Rate</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="line3-defects">0%</div>
+              <div class="stat-label">Defect Rate</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Camera Card 4 -->
+        <div class="camera-card" id="card-4">
+          <div class="camera-header">
+            <div class="camera-title"><i class="fas fa-video"></i> <span id="line4-name">Conveyor Line 4</span></div>
+            <div class="camera-header-right">
+              <div class="camera-status"><span class="status-indicator active"></span><span>Live</span></div>
+              <button id="stream-toggle-4" class="stream-toggle-btn stream-off" title="Toggle stream">
+                <i class="fas fa-play-circle"></i> Paused
+              </button>
+            </div>
+          </div>
+          <div class="camera-feed" id="camera-feed-4">
+            <video id="video-4" autoplay playsinline></video>
+          </div>
+          <div class="camera-stats">
+            <div class="stat-item">
+              <div class="stat-value" id="line4-count">0</div>
+              <div class="stat-label">Total Count</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="line4-quality">100%</div>
+              <div class="stat-label">Quality Rate</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="line4-defects">0%</div>
+              <div class="stat-label">Defect Rate</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Single-view overlay — unchanged structure, stream toggle added in sv-header -->
+    <div id="single-view-overlay" role="dialog" aria-modal="true" aria-label="Single line view">
+      <div id="sv-header">
+        <div id="sv-title">
+          <i class="fas fa-video"></i>
+          <span id="sv-line-name">Conveyor Line 1</span>
+          <span class="status-indicator active sv-live-indicator"></span>
+          <span class="sv-live-text">Live</span>
+        </div>
+        <div id="sv-header-actions">
+          <!-- Per-line toggle inside single-view; data-line-id is set dynamically by webrtc.js -->
+          <button id="sv-stream-toggle" class="stream-toggle-btn stream-off" data-line-id="" title="Toggle this stream">
+            <i class="fas fa-play-circle"></i> Paused
+          </button>
+          <button id="sv-close" title="Close (Esc)"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+      <div id="sv-body">
+        <button class="sv-nav-btn" id="sv-prev" title="Previous line"><i class="fas fa-chevron-left"></i></button>
+        <video id="sv-video" autoplay playsinline muted></video>
+        <button class="sv-nav-btn" id="sv-next" title="Next line"><i class="fas fa-chevron-right"></i></button>
+      </div>
+      <div id="sv-footer">
+        <div class="sv-stat"><span class="sv-stat-val" id="sv-count">0</span><span class="sv-stat-lbl">Total Count</span></div>
+        <div class="sv-stat"><span class="sv-stat-val" id="sv-quality">100%</span><span class="sv-stat-lbl">Quality Rate</span></div>
+        <div class="sv-stat"><span class="sv-stat-val" id="sv-defects">0%</span><span class="sv-stat-lbl">Defect Rate</span></div>
+      </div>
+      <div id="sv-dots"></div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">AI Egg Counting & Quality Grading System</div>
+        <div class="system-version">Version 1.0.0 | Last Updated: April 11, 2026</div>
+      </div>
+      <div class="copyright">
+        &copy; 2026 EggTrack AI - PRAN-RFL Solutions. All rights reserved | Contact: sujanprangroup@gmail.com.
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
