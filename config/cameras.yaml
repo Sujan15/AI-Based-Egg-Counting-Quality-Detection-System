@@ -1,22 +1,85 @@
 # config/cameras.yaml
 
 conveyor_lines:
+
+  # Line 1 
   - id: 1
-    name: "Main Conveyor North"
-    source: "rtsp://password@camera_ip:port/cam/realmonitor?channel=1&subtype=1"  # to connect any serviliance camera follow this method
-    ppm: 3.3  # Pixels Per Millimeter (Calibration)
+    name: "First Conveyor Line"
+    source: "rtsp://admin:prg%40adm!n@192.168.193.139:554/cam/realmonitor?channel=1&subtype=0" # RTSP streams continue to time out even after the fixes, consider switching to a lower‑resolution substream (subtype=0 instead of 1) 
+    # source: "rtsp://PRGAI:PRG%40ai123@192.168.193.99:554/Streaming/Channels/2401"
+    ppm: 4.3           # Pixels Per Millimeter — calibrate per camera
     active: true
     camera:
-      counting_line_y: 900
-      crack_zone: [100, 920, 2400, 1400] # [x1, y1, x2, y2]
+      # counting_line_y: 900   # legacy reference — not used by zone engine
 
+      # Crack detection DISABLED (set all zeros to disable)
+      crack_zone:   [0, 0, 0, 0]
+
+      # Measure zone: 200 px tall band well above the counting gate
+      # Adjust x1/x2 to the active belt width in your camera view
+      measure_zone: [125, 400, 2550, 820]
+
+      # Count zone: 80 px gate directly below measure zone
+      # Keep a ~30 px gap below measure_zone bottom before count_zone top
+      count_zone:   [100, 900, 2650, 1300]
+
+
+  # Line 2 
   - id: 2
-    name: "Secondary Line South"
-    source: "tests/Eggs_Sorting.mp4" # i used open source mp4 file for demostration
-    ppm: 3.5
+    name: "Second Conveyor Line"
+    source: "rtsp://admin:prg%40adm!n@192.168.193.140:554/cam/realmonitor?channel=1&subtype=0"
+    ppm: 4.1
     active: true
     camera:
-      counting_line_y: 400 # counting line position
-      crack_zone: [50, 410, 1200, 650] # cracked detection box
-     
+      # counting_line_y: 700
 
+      crack_zone:   [0, 0, 0, 0]
+
+      measure_zone: [80, 400, 1800, 650]
+
+      count_zone:   [75, 700, 1850, 950]
+
+
+  # Line 3
+  - id: 3
+    name: "Third Conveyor Line"
+    source: "rtsp://admin:prg%40adm!n@192.168.193.141:554/cam/realmonitor?channel=1&subtype=0"
+    ppm: 4.1
+    active: true
+    camera:
+      # counting_line_y: 900
+
+      crack_zone:   [0, 0, 0, 0]
+
+      measure_zone: [90, 400, 2300, 720]
+
+      count_zone:   [20, 820, 2550, 1200]
+
+
+  # Line 4 
+  - id: 4
+    name: "Fourth Conveyor Line"
+    source: "tests/20260405_174534.mp4" # 20260405_174617.mp4"    20260405_174534.mp4
+    ppm: 4.1
+    active: true
+    # loop: true   # The default is loop=false (no attribute needed). To enable looping for bench tests, just add one line: loop: true
+    camera:
+      # counting_line_y: 600
+
+      crack_zone:   [0, 0, 0, 0]
+
+      measure_zone: [20, 250, 1950, 540]
+
+      count_zone:   [10, 665, 2000, 880]
+
+
+  # Line 5 (disabled)
+  # - id: 5
+  #   name: "Fifth Conveyor Line"
+  #   source: "tests/20260405_174617.mp4"
+  #   ppm: 4.1
+  #   active: true
+  #   camera:
+  #     crack_zone:   [0, 0, 0, 0]
+  #     measure_zone: [70, 620, 2600, 820]
+  #     count_zone:   [70, 850, 2600, 940]   
